@@ -1,0 +1,33 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable = no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="iDom App">
+    <title>iDom</title>
+    <link rel="icon" type="image/ico" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-startup-image" href="/apple-launch.png">
+    <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+</head>
+
+<body style="background-color: #252525">
+    <i-dom></i-dom>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('idomsw.js', { scope: "/" }).then(function (registration) {
+                registration.update();
+            }).catch(function (error) {
+                console.log('Ошибка при регистрации service worker-а:', error);
+            });
+        } else {
+            console.log('Текущий браузер не поддерживает service worker-ы');
+        }
+    </script>
+    <script src="idom.js" defer></script>
+</body>
+
+</html>

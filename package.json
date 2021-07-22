@@ -1,0 +1,16 @@
+{
+  "name": "idom",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "hybrids": "^6.0.0",
+    "mqtt": "^4.2.8",
+    "sharp": "^0.28.3"
+  },
+  "scripts": {
+    "dev": "esbuild src/idom.js src/idomworker.js src/idomsw.js --bundle --servedir=public --outdir=public --loader:.css=text",
+    "build": "esbuild src/idom.js src/idomworker.js src/idomsw.js --bundle --outdir=public --loader:.css=text"
+  }
+}
