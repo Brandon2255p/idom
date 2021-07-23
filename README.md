@@ -2,7 +2,9 @@
 
 WebSocket MQTT control application for tasmota powered devices. Application work without backend, direct connect to mqtt server (mosquitto) by websocket.
 
-[Online version](https://idom.sheff.online)
+[Online version for WSS](https://idom.sheff.online)
+
+[Online version for WS](http://idom.sheff.online)
 
 Define in mosquitto configuration http_dir:
 
