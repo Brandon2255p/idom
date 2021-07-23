@@ -3,3 +3,4 @@ yarn.lock
 deploy.sh
 **/.DS_Store
 tmp
+TODO.md

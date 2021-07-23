@@ -10,22 +10,29 @@ export class iLogin extends HTMLElement {
     }
 
     connectedCallback() {
-        this.root = this.appendChild(document.createElement("div"));
+        this.main = this.appendChild(document.createElement("div"));
+        this.main.style.width = "100%";
+        this.main.style.height = "100%";
+        this.main.style.display = "flex";
+        this.main.style.flexDirection = "column";
+        this.main.style.justifyContent = "center";
+        this.main.style.alignItems = "center";
+        this.main.style.backgroundColor = "rgba(37, 37, 37, 0.5)"
+        this.main.style.position = "fixed";
+
+        this.root = this.main.appendChild(document.createElement("div"));
         this.root.textContent = "Login";
-        // this.root.style.border = "1px solid black";
         this.root.style.width = "300px";
         this.root.style.height = "400px";
-        this.root.style.position = "fixed";
-        this.root.style.top = "50%";
-        this.root.style.left = "50%";
-        this.root.style.marginTop = "-200px";
-        this.root.style.marginLeft = "-150px";
         this.root.style.display = "flex";
         this.root.style.flexDirection = "column";
         this.root.style.justifyContent = "space-evenly";
         this.root.style.alignItems = "stretch";
+        this.root.style.backgroundColor = "rgba(37, 37, 37, 0.9)";
+        this.root.style.padding = "50px";
+
         this.root.innerHTML = `
-            <h1>iDom v.0.0.2</h1>
+            <h1>iDom v.0.0.3</h1>
             <div style="display: flex;align-content: stretch;justify-content: space-evenly;align-items: center;">
                 <div style="width: 24px;"><i-url-icon></i-url-icon></div><div><input id="url" type="text" style="width: 100%;"></div>
             </div>

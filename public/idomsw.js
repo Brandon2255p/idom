@@ -4,7 +4,14 @@
   self.addEventListener("install", function(e) {
     console.log("ServiceWorker install.");
     e.waitUntil(caches.open("idom").then(function(cache) {
-      return cache.addAll([]);
+      return cache.addAll([
+        "/",
+        "/index.html",
+        "/idomsw.js",
+        "/idom.js",
+        "/idomworker.js",
+        "/mqtt.min.js"
+      ]);
     }));
   });
   self.addEventListener("fetch", function(event) {

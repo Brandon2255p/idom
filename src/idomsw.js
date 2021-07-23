@@ -9,7 +9,8 @@ self.addEventListener('install', function (e) {
                 '/index.html',
                 '/idomsw.js',
                 '/idom.js',
-                '/idomworker.js'
+                '/idomworker.js',
+                '/mqtt.min.js'
             ]);
         })
     );
