@@ -11,7 +11,7 @@
       this.root.style.alignItems = "center";
       this.root.style.justifyContent = "center";
       this.root.style.alignContent = "stretch";
-      this.root.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+      this.root.style.backgroundColor = "rgba(37, 37, 37, 0.5)";
     }
   };
   customElements.define("i-loading", iLoading);
@@ -316,6 +316,7 @@
               this.loginDialog();
               break;
             case "connected":
+              this.loadingoff();
               if (this.root.firstChild && this.root.firstChild.tagName === "I-LOGIN") {
                 this.root.firstChild.remove();
               }
