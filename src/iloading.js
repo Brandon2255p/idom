@@ -10,7 +10,7 @@ export class iLoading extends HTMLElement {
         this.root.style.alignItems = "center";
         this.root.style.justifyContent = "center";
         this.root.style.alignContent = "stretch";
-        this.root.style.backgroundColor = "rgba(0, 0, 0, 0.5)"
+        this.root.style.backgroundColor = "rgba(37, 37, 37, 0.5)"
         // this.root.style.paddingLeft = "50%";
         // this.root.style.paddingTop = "50%";
     }

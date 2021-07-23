@@ -21,6 +21,7 @@ class iDom extends HTMLElement {
                         this.loginDialog();
                         break;
                     case "connected":
+                        this.loadingoff();
                         if (this.root.firstChild && this.root.firstChild.tagName === "I-LOGIN") {
                             this.root.firstChild.remove();
                         }
