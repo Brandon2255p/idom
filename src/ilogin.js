@@ -1,6 +1,7 @@
-import { iPassIcon } from "./icons/passicon";
-import { iUserIcon } from "./icons/usericon";
-import { iUrlIcon } from "./icons/urlicon";
+// import { iPassIcon } from "./icons/passicon";
+// import { iUserIcon } from "./icons/usericon";
+// import { iUrlIcon } from "./icons/urlicon";
+import { iIcon } from "./iicon";
 
 export class iLogin extends HTMLElement {
 
@@ -34,13 +35,13 @@ export class iLogin extends HTMLElement {
         this.root.innerHTML = `
             <h1>iDom v.0.0.3</h1>
             <div style="display: flex;align-content: stretch;justify-content: space-evenly;align-items: center;">
-                <div style="width: 24px;"><i-url-icon></i-url-icon></div><div><input id="url" type="text" style="width: 100%;"></div>
+                <div style="width: 24px;"><i-icon name="url" ></i-icon></div><div><input id="url" type="text" style="width: 100%;"></div>
             </div>
             <div style="display: flex;align-content: stretch;justify-content: space-evenly;align-items: center;">
-                <div style="width: 24px;"><i-user-icon></i-user-icon></div><div><input id="username" type="text" style="width: 100%;"></div>
+                <div style="width: 24px;"><i-icon name="user" ></i-icon></div><div><input id="username" type="text" style="width: 100%;"></div>
             </div>
             <div style="display: flex;align-content: stretch;justify-content: space-evenly;align-items: center;">
-                <div style="width: 24px;"><i-pass-icon></i-pass-icon></div><div><input id="password" type="password" style="width: 100%;"></div>
+                <div style="width: 24px;"><i-icon name="pass" ></i-icon></div><div><input id="password" type="password" style="width: 100%;"></div>
             </div>
             <button>Connect</button>
         `;
@@ -59,9 +60,10 @@ export class iLogin extends HTMLElement {
         this.button.addEventListener("click", () => {
             this.onconnect(this.url.value, this.username.value, this.password.value);
         });
+        this.validate();
     }
     validate() {
-        console.log(!(this.username.value && this.username.value.length > 0 && this.password.value && this.password.value.length > 0));
+        //console.log(!(this.username.value && this.username.value.length > 0 && this.password.value && this.password.value.length > 0));
         this.button.disabled = !(this.username.value && this.username.value.length > 0 && this.password.value && this.password.value.length > 0);
     }
 }

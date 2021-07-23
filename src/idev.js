@@ -1,6 +1,6 @@
 import { iSwitch } from "./iswitch";
-import { iInfoIcon } from "./icons/infoicon";
 import { iInfo } from "./iinfo";
+import { iIcon } from "./iicon";
 
 
 export class iDev extends HTMLElement {
@@ -21,8 +21,7 @@ export class iDev extends HTMLElement {
         this.titleParentNode = this.root.appendChild(document.createElement("h2"));
         this.titleNode = this.titleParentNode.appendChild(document.createElement("span"));
         this.titleNode.textContent = this.deviceName || this.name;
-        this.titleParentNode.appendChild(new iInfoIcon(16, 16, () => {
-            console.log("info", this.dev);
+        this.titleParentNode.appendChild(new iIcon("info", 16, 16, () => {
             this.appendChild(new iInfo(this.dev));
         })).style.paddingLeft = "8px";
         this.statusNode = this.root.appendChild(document.createElement("div"));
@@ -39,7 +38,7 @@ export class iDev extends HTMLElement {
                 this.sensorNode = this.root.appendChild(document.createElement("div"));
             }
             const tmp = dev.SENSOR.AM2301 || dev.SENSOR.SI7021;
-            this.sensorNode.textContent = tmp ? `T: ${tmp.Temperature}C H: ${tmp.Humidity}% D: ${tmp.DewPoint}C` : "?";
+            this.sensorNode.innerHTML = tmp ? `<i-icon width="12" height="12" name="temp" ></i-icon>${tmp.Temperature}C <i-icon width="12" height="12" name="hum" ></i-icon> ${tmp.Humidity}%` : "?";
         }
 
         if (dev.STATUS) {

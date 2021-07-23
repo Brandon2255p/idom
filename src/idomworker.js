@@ -4,9 +4,12 @@ let client = undefined;
 
 onmessage = (m) => {
 
-
     if (m.data && m.data.action) {
         switch (m.data.action) {
+            case "logout":
+                // console.log(client);
+                client.end();
+                break;
             case "connect":
                 if (client) {
                     console.log("reconnect");
