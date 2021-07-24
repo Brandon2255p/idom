@@ -21,25 +21,29 @@ onmessage = (m) => {
                         console.log("close");
                         postMessage({ action: "login" });
                         //this.loginDialog();
+                        postMessage({ action: "disconnected" });
                     });
 
                     client.on("disconnect", (err) => {
                         console.log("disconnect");
+                        postMessage({ action: "disconnected" });
                     });
                     client.on("error", (err) => {
                         console.log("errr", err.message);
                         //client.close();
+                        postMessage({ action: "disconnected" });
                     });
                     client.on("connect", () => {
                         postMessage({ action: "connected" });
                         client.subscribe("#");
                         client.on("message", (topic, payload) => {
-                            postMessage({ action: "message", topic, payload: payload.toString() });
+                            postMessage({ action: "message", topic: topic.toString(), payload: payload.toString() });
                         });
                     });
                 }
                 break;
             case "publish":
+                // console.log("publish", m.data.topic, m.data.payload);
                 if (client) {
                     client.publish(m.data.topic, m.data.payload);
                 }

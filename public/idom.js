@@ -25,7 +25,11 @@
     user: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`,
     pass: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-lock"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`,
     default: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-help-circle"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
-    logout: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>`
+    logout: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>`,
+    wifi: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-wifi"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>`,
+    wifioff: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-wifi-off"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>`,
+    up: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-up"><polyline points="18 15 12 9 6 15"></polyline></svg>`,
+    down: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>`
   };
   var iIcon = class extends HTMLElement {
     constructor(name, width, height, callback) {
@@ -35,15 +39,23 @@
       this.height = Number(height || this.getAttribute("height") || 24);
       this.callback = callback;
     }
-    connectedCallback() {
+    setName(name) {
+      this.name = name;
+      this.render();
+    }
+    render() {
       this.innerHTML = icons[this.name] || icons.default;
       this.firstChild.setAttribute("width", this.width);
       this.firstChild.setAttribute("height", this.height);
-      this.style.cursor = "pointer";
-      this.onmouseover = () => this.firstChild.style.fill = "#aaaaaa";
-      this.onmouseout = () => this.firstChild.style.fill = "none";
-      if (this.callback)
+      if (this.callback) {
+        this.style.cursor = "pointer";
+        this.onmouseover = () => this.firstChild.style.stroke = "palevioletred";
+        this.onmouseout = () => this.firstChild.style.stroke = "white";
         this.onclick = this.callback;
+      }
+    }
+    connectedCallback() {
+      this.render();
     }
   };
   var iIconHtml = class extends iIcon {
@@ -62,6 +74,7 @@
     }
     connectedCallback() {
       this.main = this.appendChild(document.createElement("div"));
+      this.main.style.top = "0";
       this.main.style.width = "100%";
       this.main.style.height = "100%";
       this.main.style.display = "flex";
@@ -81,7 +94,7 @@
       this.root.style.backgroundColor = "rgba(37, 37, 37, 0.9)";
       this.root.style.padding = "50px";
       this.root.innerHTML = `
-            <h1>iDom v.0.0.3</h1>
+            <h1>iDom v.0.0.4</h1>
             <div style="display: flex;align-content: stretch;justify-content: space-evenly;align-items: center;">
                 <div style="width: 24px;"><i-icon name="url" ></i-icon></div><div><input id="url" type="text" style="width: 100%;"></div>
             </div>
@@ -209,6 +222,13 @@
       this.root = this.appendChild(document.createElement("div"));
       this.root.id = this.name;
       this.root.style.padding = "10px";
+      this.root.position = "relative";
+      this.toolbar = this.root.appendChild(document.createElement("div"));
+      this.toolbar.appendChild(new iIcon("up", 16, 16));
+      this.toolbar.appendChild(new iIcon("down", 16, 16));
+      this.toolbar.style.position = "absolute";
+      this.toolbar.style.top = "0px";
+      this.toolbar.style.right = "0px";
       this.titleParentNode = this.root.appendChild(document.createElement("h2"));
       this.titleNode = this.titleParentNode.appendChild(document.createElement("span"));
       this.titleNode.textContent = this.deviceName || this.name;
@@ -221,6 +241,7 @@
     }
     update(dev) {
       this.dev = dev;
+      console.log(dev);
       this.statusNode.textContent = dev.LWT || "";
       if (dev.SENSOR) {
         if (this.sensorNode === void 0) {
@@ -276,11 +297,14 @@
             case "login":
               this.loginDialog();
               break;
+            case "disconnected":
+              this.netstat.setName("wifioff");
+              this.loginDialog();
+              break;
             case "connected":
-              this.loadingoff();
-              if (this.root.firstChild && this.root.firstChild.tagName === "I-LOGIN") {
-                this.root.firstChild.remove();
-              }
+              this.netstat.setName("wifi");
+              this.loadingNode.style.display = "none";
+              this.loginNode.style.display = "none";
               break;
             case "message":
               this.onmessage(m.data.topic, m.data.payload);
@@ -294,68 +318,66 @@
     }
     onmessage(topic, payload) {
       const [type, name, cmd] = topic.split("/");
-      if (cmd == "LWT") {
-        this.devs[name] = {...this.devs[name] || {}, LWT: payload.toString()};
-        this.worker.postMessage({action: "publish", topic: `cmnd/${name}/STATUS`, payload: "0"});
-        this.worker.postMessage({action: "publish", topic: `cmnd/${name}/STATE`, payload: ""});
-      } else if (type == "stat" && cmd.startsWith("STATUS")) {
-        this.devs[name] = {...this.devs[name] || {}, [cmd]: JSON.parse(payload.toString())};
-      } else if (cmd == "RESULT") {
-        this.devs[name] = {...this.devs[name] || {}, RESULT: JSON.parse(payload.toString())};
-      } else if (cmd == "SENSOR") {
-        this.devs[name] = {...this.devs[name] || {}, SENSOR: JSON.parse(payload.toString())};
-      } else if (type == "stat") {
-        this.devs[name] = {...this.devs[name] || {}, [cmd]: payload.toString()};
-      } else if (type == "tele" && cmd == "STATE") {
-        this.devs[name] = {...this.devs[name] || {}, STATE: JSON.parse(payload.toString())};
-      } else {
+      try {
+        if (cmd == "LWT") {
+          this.devs[name] = {...this.devs[name] || {}, LWT: payload.toString()};
+          if (this.devs[name].STATUS == void 0)
+            this.worker.postMessage({action: "publish", topic: `cmnd/${name}/STATUS`, payload: ""});
+          if (this.devs[name].STATUS5 == void 0)
+            this.worker.postMessage({action: "publish", topic: `cmnd/${name}/STATUS`, payload: "5"});
+          this.worker.postMessage({action: "publish", topic: `cmnd/${name}/STATE`, payload: ""});
+        } else if (type == "stat" && cmd.startsWith("STATUS")) {
+          this.devs[name] = {...this.devs[name] || {}, [cmd]: JSON.parse(payload.toString())};
+        } else if (cmd == "RESULT") {
+          this.devs[name] = {...this.devs[name] || {}, RESULT: JSON.parse(payload.toString())};
+        } else if (cmd == "SENSOR") {
+          this.devs[name] = {...this.devs[name] || {}, SENSOR: JSON.parse(payload.toString())};
+        } else if (type == "stat") {
+          this.devs[name] = {...this.devs[name] || {}, [cmd]: payload.toString()};
+        } else if (type == "tele" && cmd == "STATE") {
+          this.devs[name] = {...this.devs[name] || {}, STATE: JSON.parse(payload.toString())};
+        } else {
+        }
+        this.render();
+      } catch (e) {
+        console.log(topic.toString(), payload.toString());
       }
-      this.render();
     }
     loginDialog() {
-      if (!(this.root.firstChild && this.root.firstChild.tagName === "I-LOGIN")) {
-        this.loadingoff();
-        this.root.innerHTML = "";
-        this.root.appendChild(new iLogin((url, username, password) => {
-          localStorage.setItem("idom_url", url);
-          localStorage.setItem("idom_username", username);
-          localStorage.setItem("idom_password", password);
-          this.loading();
-          this.connect();
-        }));
-      }
+      this.loginNode.style.display = "block";
     }
     connectedCallback() {
       const s = this.appendChild(document.createElement("style"));
       s.innerHTML = tasmota_default;
       this.root = this.appendChild(document.createElement("div"));
       this.loadingNode = this.appendChild(new iLoading());
-      this.main = this.appendChild(document.createElement("div"));
-      this.main.style.paddingTop = "20px";
       this.toolbar = this.appendChild(document.createElement("div"));
       this.toolbar.style.position = "fixed";
-      this.toolbar.style.top = "0";
+      this.toolbar.style.bottom = "0";
       this.toolbar.style.left = "0";
       this.toolbar.style.backgroundColor = "black";
       this.toolbar.style.height = "40px";
       this.toolbar.style.width = "100%";
       this.toolbar.style.display = "flex";
       this.toolbar.style.alignContent = "center";
-      this.toolbar.style.justifyContent = "center";
+      this.toolbar.style.justifyContent = "space-evenly";
       this.toolbar.style.alignItems = "center";
-      this.toolbar.style.flexDirection = "column";
-      const logout = this.toolbar.appendChild(new iIcon("logout", 24, 24, () => {
+      this.toolbar.style.flexDirection = "row";
+      this.loginNode = this.appendChild(new iLogin((url, username, password) => {
+        localStorage.setItem("idom_url", url);
+        localStorage.setItem("idom_username", username);
+        localStorage.setItem("idom_password", password);
+        this.loadingNode.style.display = "block";
+        this.connect();
+      }));
+      this.loginNode.style.display = "none";
+      this.main = this.appendChild(document.createElement("div"));
+      this.main.style.paddingBottom = "40px";
+      this.netstat = this.toolbar.appendChild(new iIcon("wifioff", 24, 24));
+      this.logout = this.toolbar.appendChild(new iIcon("logout", 24, 24, () => {
         this.worker.postMessage({action: "logout"});
       }));
-      logout.style.paddingRight = "10px";
-      logout.style.alignSelf = "flex-end";
       this.connect();
-    }
-    loading() {
-      this.loadingNode.style.display = "block";
-    }
-    loadingoff() {
-      this.loadingNode.style.display = "none";
     }
     connect() {
       if (localStorage.getItem("idom_username") && localStorage.getItem("idom_password")) {
@@ -373,7 +395,7 @@
       });
     }
     publish(topic, payload) {
-      this.client.publish(topic, payload);
+      this.worker.postMessage({action: "publish", topic, payload});
     }
   };
   customElements.define("i-dom", iDom);

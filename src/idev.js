@@ -17,6 +17,14 @@ export class iDev extends HTMLElement {
         this.root = this.appendChild(document.createElement("div"));
         this.root.id = this.name;
         this.root.style.padding = "10px";
+        this.root.position = "relative";
+
+        this.toolbar = this.root.appendChild(document.createElement("div"));
+        this.toolbar.appendChild(new iIcon("up", 16, 16));
+        this.toolbar.appendChild(new iIcon("down", 16, 16));
+        this.toolbar.style.position = "absolute";
+        this.toolbar.style.top = "0px";
+        this.toolbar.style.right = "0px";
 
         this.titleParentNode = this.root.appendChild(document.createElement("h2"));
         this.titleNode = this.titleParentNode.appendChild(document.createElement("span"));

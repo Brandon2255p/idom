@@ -12,6 +12,7 @@ export class iLogin extends HTMLElement {
 
     connectedCallback() {
         this.main = this.appendChild(document.createElement("div"));
+        this.main.style.top = "0";
         this.main.style.width = "100%";
         this.main.style.height = "100%";
         this.main.style.display = "flex";
@@ -33,7 +34,7 @@ export class iLogin extends HTMLElement {
         this.root.style.padding = "50px";
 
         this.root.innerHTML = `
-            <h1>iDom v.0.0.3</h1>
+            <h1>iDom v.0.0.4</h1>
             <div style="display: flex;align-content: stretch;justify-content: space-evenly;align-items: center;">
                 <div style="width: 24px;"><i-icon name="url" ></i-icon></div><div><input id="url" type="text" style="width: 100%;"></div>
             </div>
@@ -63,7 +64,7 @@ export class iLogin extends HTMLElement {
         this.validate();
     }
     validate() {
-        //console.log(!(this.username.value && this.username.value.length > 0 && this.password.value && this.password.value.length > 0));
+        // console.log(!(this.username.value && this.username.value.length > 0 && this.password.value && this.password.value.length > 0));
         this.button.disabled = !(this.username.value && this.username.value.length > 0 && this.password.value && this.password.value.length > 0);
     }
 }

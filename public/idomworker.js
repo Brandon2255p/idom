@@ -18,18 +18,21 @@
             client.on("close", () => {
               console.log("close");
               postMessage({action: "login"});
+              postMessage({action: "disconnected"});
             });
             client.on("disconnect", (err) => {
               console.log("disconnect");
+              postMessage({action: "disconnected"});
             });
             client.on("error", (err) => {
               console.log("errr", err.message);
+              postMessage({action: "disconnected"});
             });
             client.on("connect", () => {
               postMessage({action: "connected"});
               client.subscribe("#");
               client.on("message", (topic, payload) => {
-                postMessage({action: "message", topic, payload: payload.toString()});
+                postMessage({action: "message", topic: topic.toString(), payload: payload.toString()});
               });
             });
           }
