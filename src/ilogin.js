@@ -34,7 +34,7 @@ export class iLogin extends HTMLElement {
         this.root.style.padding = "50px";
 
         this.root.innerHTML = `
-            <h1>iDom v.0.0.4</h1>
+            <h1>iDom v.0.0.5</h1>
             <div style="display: flex;align-content: stretch;justify-content: space-evenly;align-items: center;">
                 <div style="width: 24px;"><i-icon name="url" ></i-icon></div><div><input id="url" type="text" style="width: 100%;"></div>
             </div>

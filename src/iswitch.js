@@ -11,6 +11,7 @@ export class iSwitch extends HTMLElement {
 
     setState(state) {
         this.state = state;
+        this.root.className = "iswitch " + (state == "ON" ? "ON" : "OFF");
         this.render();
     }
 
@@ -25,7 +26,10 @@ export class iSwitch extends HTMLElement {
     }
 
     render() {
-        this.root.textContent = `${this.fname || this.name}: ${this.state}`;
+        if (this.state == "?")
+            this.root.innerHTML = `${this.fname || this.name}<div class="spinner"></div>`
+        else
+            this.root.innerHTML = `${this.fname || this.name} <span>${this.state}</span>`;
     }
 
     connectedCallback() {
@@ -34,7 +38,12 @@ export class iSwitch extends HTMLElement {
         this.root.className = "iswitch";
         this.root.textContent = "Loading...";
         this.root.addEventListener("click", () => {
-            this.idom.publish(`cmnd/${this.devname}/Power${this.index + 1}`, "TOGGLE");
+            if (this.state != "?") {
+                this.state = '?';
+                this.render();
+                this.idom.publish(`cmnd/${this.devname}/Power${this.index + 1}`, "TOGGLE");
+
+            }
         });
     }
 

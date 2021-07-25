@@ -13,18 +13,37 @@ export class iDev extends HTMLElement {
         this.idom = idom;
     }
 
+    setOrder(order) {
+        this.style.order = order;
+        localStorage.setItem("idom_order|" + this.name, order);
+    }
+
     connectedCallback() {
         this.root = this.appendChild(document.createElement("div"));
         this.root.id = this.name;
         this.root.style.padding = "10px";
         this.root.position = "relative";
 
+        const swap = (up) => {
+            const lst = Array.prototype.slice.call(this.parentElement.querySelectorAll("i-dev")).sort((a, b) => a.style.order - b.style.order);
+            for (let idx = 0; idx < lst.length; idx++) {
+                if (lst[idx] == this && idx != (up ? 0 : lst.length - 1)) {
+                    const cur = this.style.order;
+                    this.setOrder(lst[idx + (up ? - 1 : 1)].style.order);
+                    lst[idx + (up ? - 1 : 1)].setOrder(cur);
+                    break;
+                }
+            }
+        }
+
+        const upbutton = new iIcon("up", 24, 24, () => swap(true));
+        const downbutton = new iIcon("down", 24, 24, () => swap(false));
+
         this.toolbar = this.root.appendChild(document.createElement("div"));
-        this.toolbar.appendChild(new iIcon("up", 16, 16));
-        this.toolbar.appendChild(new iIcon("down", 16, 16));
-        this.toolbar.style.position = "absolute";
-        this.toolbar.style.top = "0px";
-        this.toolbar.style.right = "0px";
+        this.toolbar.appendChild(upbutton);
+        this.toolbar.appendChild(downbutton);
+        this.toolbar.style.position = "relative";
+        this.toolbar.className = "idom-device-toolbar";
 
         this.titleParentNode = this.root.appendChild(document.createElement("h2"));
         this.titleNode = this.titleParentNode.appendChild(document.createElement("span"));
@@ -32,9 +51,16 @@ export class iDev extends HTMLElement {
         this.titleParentNode.appendChild(new iIcon("info", 16, 16, () => {
             this.appendChild(new iInfo(this.dev));
         })).style.paddingLeft = "8px";
+
+        this.sensorNode = this.root.appendChild(document.createElement("div"));
+        this.sensorNode.style.paddingBottom = "20px";
+        this.sensorNode.style.fontSize = "2em";
+        this.sensorNode.style.display = "none";
+
         this.statusNode = this.root.appendChild(document.createElement("div"));
         this.statusNode.style.display = "none";
         this.swNode = this.root.appendChild(document.createElement("div"));
+        this.swNode.className = "idom-device-switches";
     }
 
     update(dev) {
@@ -42,11 +68,9 @@ export class iDev extends HTMLElement {
         // console.log(dev);
         this.statusNode.textContent = dev.LWT || "";
         if (dev.SENSOR) {
-            if (this.sensorNode === undefined) {
-                this.sensorNode = this.root.appendChild(document.createElement("div"));
-            }
+            this.sensorNode.style.display = "block";
             const tmp = dev.SENSOR.AM2301 || dev.SENSOR.SI7021;
-            this.sensorNode.innerHTML = tmp ? `<i-icon width="12" height="12" name="temp" ></i-icon>${tmp.Temperature}C <i-icon width="12" height="12" name="hum" ></i-icon> ${tmp.Humidity}%` : "?";
+            this.sensorNode.innerHTML = tmp ? `<i-icon width="24" height="24" name="temp" ></i-icon>${tmp.Temperature}C <i-icon width="24" height="24" name="hum" style="padding-left: 20px" ></i-icon> ${tmp.Humidity}%` : "?";
         }
 
         if (dev.STATUS) {
