@@ -25,7 +25,7 @@ export class iDev extends HTMLElement {
         this.root.position = "relative";
 
         const swap = (up) => {
-            const lst = Array.prototype.slice.call(this.parentElement.querySelectorAll("i-dev")).sort((a, b) => a.style.order - b.style.order);
+            const lst = Array.prototype.slice.call(this.parentElement.querySelectorAll(".idom-device")).sort((a, b) => a.style.order - b.style.order);
             for (let idx = 0; idx < lst.length; idx++) {
                 if (lst[idx] == this && idx != (up ? 0 : lst.length - 1)) {
                     const cur = this.style.order;

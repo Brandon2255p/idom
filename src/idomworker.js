@@ -17,13 +17,15 @@ onmessage = (m) => {
                 } else {
                     console.log("connect");
                     client = mqtt.connect(m.data.url, { ...m.data, keepalive: 1 });
-                    client.on('close', () => {
-                        console.log("close");
+                    client.on('close', (a) => {
+                        console.log("close", a);
                         postMessage({ action: "login" });
                         //this.loginDialog();
                         postMessage({ action: "disconnected" });
                     });
-
+                    client.on("packetreceive", p => {
+                        console.log("PACKET", p.topic);
+                    })
                     client.on("disconnect", (err) => {
                         console.log("disconnect");
                         postMessage({ action: "disconnected" });
@@ -35,8 +37,11 @@ onmessage = (m) => {
                     });
                     client.on("connect", () => {
                         postMessage({ action: "connected" });
-                        client.subscribe("#");
+                        client.subscribe("stat/#");
+                        client.subscribe("tele/#");
+                        client.subscribe("camsnap/#");
                         client.on("message", (topic, payload) => {
+                            console.log(topic)
                             postMessage({ action: "message", topic: topic.toString(), payload: payload.toString() });
                         });
                     });

@@ -1,6 +1,7 @@
 import { iLoading } from "./iloading";
 import { iLogin } from "./ilogin";
 import { iDev } from "./idev";
+import { iDevCam } from "./idevcam";
 import css from "./tasmota.css";
 import { iIcon } from "./iicon";
 
@@ -21,7 +22,7 @@ class iDom extends HTMLElement {
 
     constructor() {
         super();
-        this.worker = new Worker("idomworker.js");
+        this.worker = new Worker("idomworkerpaho.js");
         this.worker.onmessage = (m) => {
 
             if (m.data && m.data.action) {
@@ -51,8 +52,9 @@ class iDom extends HTMLElement {
     }
 
     onmessage(topic, payload) {
-        const [type, name, cmd] = topic.split("/");
+        // console.log(topic);
         try {
+            const [type, name, cmd] = topic.split("/");
             if (cmd == "LWT") {
                 this.devs[name] = { ...(this.devs[name] || {}), LWT: payload.toString() };
                 if (this.devs[name].STATUS == undefined) this.worker.postMessage({ action: "publish", topic: `cmnd/${name}/STATUS`, payload: "" });
@@ -68,8 +70,14 @@ class iDom extends HTMLElement {
                 this.devs[name] = { ...(this.devs[name] || {}), [cmd]: payload.toString() };
             } else if (type == "tele" && cmd == "STATE") {
                 this.devs[name] = { ...(this.devs[name] || {}), STATE: JSON.parse(payload.toString()) };
+            } else if (type == "camsnap") {
+                console.log(type, name);
+                this.devs[name] = {
+                    name: name, image: payload,
+                    type: "cam"
+                }
             } else {
-                // console.log(topic, payload.toString());
+                //console.log(topic, payload.toString());
             }
 
             // this.render();
@@ -148,10 +156,20 @@ class iDom extends HTMLElement {
         // console.log("render", name);
         if (name) {
             if (this.wdevs[name] == undefined) {
-                this.wdevs[name] = this.main.appendChild(new iDev(name, this));
-                this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
-                this.lastOrder = (localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1);
-                this.wdevs[name].className = "idom-device";
+                switch (this.devs[name].type) {
+                    case "cam":
+                        this.wdevs[name] = this.main.appendChild(new iDevCam(name, this));
+                        this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
+                        this.lastOrder = (localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1);
+                        this.wdevs[name].className = "idom-device";
+                        break;
+                    default:
+                        this.wdevs[name] = this.main.appendChild(new iDev(name, this));
+                        this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
+                        this.lastOrder = (localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1);
+                        this.wdevs[name].className = "idom-device";
+                        break;
+                }
             }
             this.wdevs[name].update(this.devs[name]);
         } else {
@@ -167,4 +185,3 @@ class iDom extends HTMLElement {
 }
 
 customElements.define('i-dom', iDom);
-
