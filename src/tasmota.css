@@ -3,10 +3,58 @@
 .idom-main {
     padding: 10px;
     padding-bottom: 60px;
-    display: flex;
-    flex-direction: column;
+
+    /* display: flex;
+    flex-direction: column; */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
     gap: 1rem;
     background-color: #252525;
+}
+
+@media (min-width: 0px) {
+    .idom-main {
+        padding: 10px;
+        padding-bottom: 60px;
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);    
+        gap: 1rem;
+        background-color: #252525;
+    }    
+}
+
+@media (min-width: 700px) {
+    .idom-main {
+        padding: 10px;
+        padding-bottom: 60px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);    
+        gap: 1rem;
+        background-color: #252525;
+    }    
+}
+
+@media (min-width: 1000px) {
+    .idom-main {
+        padding: 10px;
+        padding-bottom: 60px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);    
+        gap: 1rem;
+        background-color: #252525;
+    }    
+}
+
+@media (min-width: 1300px) {
+    .idom-main {
+        padding: 10px;
+        padding-bottom: 60px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);    
+        gap: 1rem;
+        background-color: #252525;
+    }    
 }
 
 .idom-device {
@@ -47,9 +95,36 @@ i-switch {
     background-color: #88A9BB;
 }
 
+.idom-device-sensor {
+    font-size: 2em;
+}
+
 .idom-device-toolbar {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    padding: 6px;
+    padding-left: 10px;
+}
+
+.idom-device-body {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: 6px;
+    gap:6px;
+}
+
+.idom-device-root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    /* align-content: center;
+    justify-content: center;
+    align-items: center; */
 }
 
 .spinner {

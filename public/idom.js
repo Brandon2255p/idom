@@ -29,7 +29,8 @@
     wifi: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-wifi"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>`,
     wifioff: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-wifi-off"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>`,
     up: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-up"><polyline points="18 15 12 9 6 15"></polyline></svg>`,
-    down: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>`
+    down: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>`,
+    x: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`
   };
   var iIcon = class extends HTMLElement {
     constructor(name, width, height, callback) {
@@ -175,40 +176,68 @@
   };
   customElements.define("i-switch", iSwitch);
 
-  // src/iinfo.js
-  var iInfo = class extends HTMLElement {
-    constructor(info) {
-      super();
-      this.info = info;
+  // src/idialogbase.js
+  var iDialogBase = class extends HTMLElement {
+    closeDialog() {
+      const scrollY = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      window.scrollTo(0, parseInt(scrollY || "0") * -1);
+      this.remove();
     }
     connectedCallback() {
-      console.log(this.info);
+      const sy = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${sy}px`;
+      document.body.style.right = 0;
+      document.body.style.left = 0;
       this.root = this.appendChild(document.createElement("div"));
       this.root.style.zIndex = 1e3;
       this.root.style.position = "fixed";
       this.root.style.top = "0";
       this.root.style.width = "100%";
-      this.root.style.height = "100%";
+      this.root.style.height = "100vh";
       this.root.style.display = "flex";
       this.root.style.alignItems = "center";
       this.root.style.justifyContent = "center";
       this.root.style.alignContent = "stretch";
       this.root.style.flexDirection = "column";
       this.root.style.backgroundColor = "rgba(37, 37, 37, 0.8)";
-      this.root.appendChild(document.createElement("h1")).textContent = this.info.STATUS.Status.DeviceName;
+      this.close = this.root.appendChild(new iIcon("x", 24, 24, () => {
+        this.closeDialog();
+      }));
+      this.close.style.width = "40px";
+      this.close.style.padding = "10";
+      this.close.style.position = "absolute";
+      this.close.style.right = 0;
+      this.close.style.top = 0;
+      this.build();
+    }
+    build() {
+    }
+  };
+
+  // src/iinfo.js
+  var iInfo = class extends iDialogBase {
+    constructor(info) {
+      super();
+      this.info = info;
+    }
+    build() {
+      this.root.appendChild(document.createElement("h1")).textContent = this.info.DeviceName || this.info.STATUS.Status.DeviceName;
       const t = this.root.appendChild(document.createElement("table"));
       this.table = t.appendChild(document.createElement("tbody"));
       t.style.minWidth = "300px";
       t.style.textAlign = "left";
-      this.row("DeviceName", this.info.STATUS.Status.DeviceName);
-      this.row("Topic", this.info.STATUS.Status.Topic);
-      this.row("IP", this.info.STATUS5.StatusNET.IPAddress);
+      this.row("DeviceName", this.info.DeviceName || this.info.STATUS.Status.DeviceName);
+      this.row("Topic", this.info.Topic || this.info.STATUS.Status.Topic);
+      this.row("IP", this.info.Ip || this.info.STATUS5.StatusNET.IPAddress);
       const b = this.root.appendChild(document.createElement("button"));
       b.textContent = "Close";
       b.style.maxWidth = "300px";
       b.style.marginTop = "20px";
       b.onclick = () => {
-        this.remove();
+        this.closeDialog();
       };
     }
     row(k, v) {
@@ -219,9 +248,8 @@
   };
   customElements.define("i-info", iInfo);
 
-  // src/idev.js
-  var iDev = class extends HTMLElement {
-    sw = [];
+  // src/idevbase.js
+  var iDevBase = class extends HTMLElement {
     constructor(name, idom) {
       super();
       this.name = name;
@@ -234,10 +262,10 @@
     connectedCallback() {
       this.root = this.appendChild(document.createElement("div"));
       this.root.id = this.name;
-      this.root.style.padding = "10px";
+      this.root.className = "idom-device-root";
       this.root.position = "relative";
       const swap = (up) => {
-        const lst = Array.prototype.slice.call(this.parentElement.querySelectorAll("i-dev")).sort((a, b) => a.style.order - b.style.order);
+        const lst = Array.prototype.slice.call(this.parentElement.querySelectorAll(".idom-device")).sort((a, b) => a.style.order - b.style.order);
         for (let idx = 0; idx < lst.length; idx++) {
           if (lst[idx] == this && idx != (up ? 0 : lst.length - 1)) {
             const cur = this.style.order;
@@ -247,26 +275,60 @@
           }
         }
       };
-      const upbutton = new iIcon("up", 24, 24, () => swap(true));
-      const downbutton = new iIcon("down", 24, 24, () => swap(false));
+      this.upbutton = new iIcon("up", 24, 24, () => swap(true));
+      this.downbutton = new iIcon("down", 24, 24, () => swap(false));
+      this.infobutton = new iIcon("info", 18, 18, () => {
+        this.appendChild(new iInfo(this.dev));
+      });
+      this.infobutton.style.paddingRight = "4px";
+      this.buildToolbar();
+      this.buildTitle();
+      this.body = this.root.appendChild(document.createElement("div"));
+      this.body.className = "idom-device-body";
+      this.buildCustom();
+    }
+    buildToolbar() {
       this.toolbar = this.root.appendChild(document.createElement("div"));
-      this.toolbar.appendChild(upbutton);
-      this.toolbar.appendChild(downbutton);
+      this.toolbar.appendChild(this.infobutton);
+      this.toolbar.appendChild(this.upbutton);
+      this.toolbar.appendChild(this.downbutton);
       this.toolbar.style.position = "relative";
       this.toolbar.className = "idom-device-toolbar";
-      this.titleParentNode = this.root.appendChild(document.createElement("h2"));
-      this.titleNode = this.titleParentNode.appendChild(document.createElement("span"));
+    }
+    buildTitle() {
+      this.titleNode = this.toolbar.insertAdjacentElement("afterbegin", document.createElement("div"));
+      this.titleNode.style.marginRight = "auto";
+      this.titleNode.style.fontWeight = "700";
       this.titleNode.textContent = this.deviceName || this.name;
-      this.titleParentNode.appendChild(new iIcon("info", 16, 16, () => {
-        this.appendChild(new iInfo(this.dev));
-      })).style.paddingLeft = "8px";
-      this.sensorNode = this.root.appendChild(document.createElement("div"));
-      this.sensorNode.style.paddingBottom = "20px";
-      this.sensorNode.style.fontSize = "2em";
+    }
+    buildCustom() {
+    }
+    update(dev) {
+      this.dev = dev;
+    }
+  };
+
+  // src/idev.js
+  var iDev = class extends iDevBase {
+    sw = [];
+    constructor(name, idom) {
+      super();
+      this.name = name;
+      this.idom = idom;
+    }
+    buildTitle() {
+      this.titleNode = this.toolbar.insertAdjacentElement("afterbegin", document.createElement("div"));
+      this.titleNode.style.marginRight = "auto";
+      this.titleNode.style.fontWeight = "700";
+      this.titleNode.textContent = this.deviceName || this.name;
+    }
+    buildCustom() {
+      this.sensorNode = this.body.appendChild(document.createElement("div"));
+      this.sensorNode.className = "idom-device-sensor";
       this.sensorNode.style.display = "none";
-      this.statusNode = this.root.appendChild(document.createElement("div"));
+      this.statusNode = this.body.appendChild(document.createElement("div"));
       this.statusNode.style.display = "none";
-      this.swNode = this.root.appendChild(document.createElement("div"));
+      this.swNode = this.body.appendChild(document.createElement("div"));
       this.swNode.className = "idom-device-switches";
     }
     update(dev) {
@@ -307,8 +369,63 @@
   };
   customElements.define("i-dev", iDev);
 
+  // src/idevcam.js
+  var iDevCam = class extends iDevBase {
+    buildCustom() {
+      this.main = this.root.appendChild(document.createElement("div"));
+      this.imgNode = this.main.appendChild(document.createElement("img"));
+      this.imgNode.setAttribute("width", "100%");
+    }
+    buildTitle() {
+      this.titleNode = this.toolbar.insertAdjacentElement("afterbegin", document.createElement("div"));
+      this.titleNode.style.marginRight = "auto";
+      this.titleNode.style.fontWeight = "700";
+      this.titleNode.textContent = this.deviceName || this.name;
+    }
+    update(dev) {
+      this.dev = dev;
+      this.imgNode.src = `data:image/png;base64,${dev.image}`;
+    }
+  };
+  customElements.define("i-dev-cam", iDevCam);
+
   // src/tasmota.css
-  var tasmota_default = "/* THEME */\n\n.idom-main {\n    padding: 10px;\n    padding-bottom: 60px;\n    display: flex;\n    flex-direction: column;\n    gap: 1rem;\n    background-color: #252525;\n}\n\n.idom-device {\n    background-color: #283239;\n    border-radius: 0.5em;\n}\n\n.idom-device h2 {\n    margin-top: 0px;\n}\n\ni-switch {\n    display: flex;\n    justify-content: center;\n}\n\n.idom-device-switches {\n    display: flex;\n    justify-content: center;\n    flex-wrap: wrap;\n}\n\n.idom-device .iswitch {\n    padding-left: 20px;\n    padding-right: 20px;\n    white-space: nowrap;\n    flex-basis: 250px;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    justify-content: space-evenly;\n    gap: 0.5em;\n    /* margin-bottom: 20px; */\n    /* max-width: 350px; */\n}\n\n.idom-device .iswitch.OFF {\n    background-color: #88A9BB;\n}\n\n.idom-device-toolbar {\n    display: flex;\n    justify-content: flex-end;\n}\n\n.spinner {\n    display: inline-block;\n    width: 24px;\n    height: 24px;\n    /* margin: 100px auto; */\n    background-color: #333;\n    border-radius: 100%;\n    -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;\n    animation: sk-scaleout 1.0s infinite ease-in-out;\n}\n\n@-webkit-keyframes sk-scaleout {\n    0% {\n        -webkit-transform: scale(0)\n    }\n    100% {\n        -webkit-transform: scale(1.0);\n        opacity: 0;\n    }\n}\n\n@keyframes sk-scaleout {\n    0% {\n        -webkit-transform: scale(0);\n        transform: scale(0);\n    }\n    100% {\n        -webkit-transform: scale(1.0);\n        transform: scale(1.0);\n        opacity: 0;\n    }\n}\n\n/* */\n\n* {\n    color: #eaeaea;\n}\n\n/* */\n\ndiv, fieldset, input, select {\n    /* padding: 5px; */\n    font-size: 1em;\n}\n\nfieldset {\n    background: #4f4f4f;\n}\n\np {\n    margin: 0.5em 0;\n}\n\ninput {\n    width: 100%;\n    box-sizing: border-box;\n    -webkit-box-sizing: border-box;\n    -moz-box-sizing: border-box;\n    background: #dddddd;\n    color: #000000;\n}\n\ninput[type=checkbox], input[type=radio] {\n    width: 1em;\n    margin-right: 6px;\n    vertical-align: -1px;\n}\n\ninput[type=range] {\n    width: 99%;\n}\n\nselect {\n    width: 100%;\n    background: #dddddd;\n    color: #000000;\n}\n\ntextarea {\n    resize: vertical;\n    width: 98%;\n    height: 318px;\n    padding: 5px;\n    overflow: auto;\n    background: #1f1f1f;\n    color: #65c115;\n}\n\nbody {\n    text-align: center;\n    font-family: verdana, sans-serif;\n    background: #252525;\n}\n\ntd {\n    padding: 0px;\n}\n\nbutton {\n    border: 0;\n    border-radius: 0.3rem;\n    background: #1fa3ec;\n    color: #faffff;\n    line-height: 2.4rem;\n    font-size: 1.2rem;\n    width: 100%;\n    -webkit-transition-duration: 0.4s;\n    transition-duration: 0.4s;\n    cursor: pointer;\n}\n\nbutton:hover {\n    background: #0e70a4;\n}\n\nbutton:disabled, button[disabled] {\n    background: #cccccc;\n    cursor: default;\n}\n\n.bred {\n    background: #d43535;\n}\n\n.bred:hover {\n    background: #931f1f;\n}\n\n.bgrn {\n    background: #47c266;\n}\n\n.bgrn:hover {\n    background: #5aaf6f;\n}\n\na {\n    color: #1fa3ec;\n    text-decoration: none;\n}\n\n.p {\n    float: left;\n    text-align: left;\n}\n\n.q {\n    float: right;\n    text-align: right;\n}\n\n.r {\n    border-radius: 0.3em;\n    padding: 2px;\n    margin: 6px 2px;\n}";
+  var tasmota_default = "/* THEME */\n\n.idom-main {\n    padding: 10px;\n    padding-bottom: 60px;\n\n    /* display: flex;\n    flex-direction: column; */\n    display: grid;\n    grid-template-columns: repeat(3, 1fr);\n\n    gap: 1rem;\n    background-color: #252525;\n}\n\n@media (min-width: 0px) {\n    .idom-main {\n        padding: 10px;\n        padding-bottom: 60px;\n        display: grid;\n        grid-template-columns: repeat(1, 1fr);    \n        gap: 1rem;\n        background-color: #252525;\n    }    \n}\n\n@media (min-width: 700px) {\n    .idom-main {\n        padding: 10px;\n        padding-bottom: 60px;\n        display: grid;\n        grid-template-columns: repeat(2, 1fr);    \n        gap: 1rem;\n        background-color: #252525;\n    }    \n}\n\n@media (min-width: 1000px) {\n    .idom-main {\n        padding: 10px;\n        padding-bottom: 60px;\n        display: grid;\n        grid-template-columns: repeat(3, 1fr);    \n        gap: 1rem;\n        background-color: #252525;\n    }    \n}\n\n@media (min-width: 1300px) {\n    .idom-main {\n        padding: 10px;\n        padding-bottom: 60px;\n        display: grid;\n        grid-template-columns: repeat(4, 1fr);    \n        gap: 1rem;\n        background-color: #252525;\n    }    \n}\n\n.idom-device {\n    background-color: #283239;\n    border-radius: 0.5em;\n}\n\n.idom-device h2 {\n    margin-top: 0px;\n}\n\ni-switch {\n    display: flex;\n    justify-content: center;\n}\n\n.idom-device-switches {\n    display: flex;\n    justify-content: center;\n    flex-wrap: wrap;\n}\n\n.idom-device .iswitch {\n    padding-left: 20px;\n    padding-right: 20px;\n    white-space: nowrap;\n    flex-basis: 250px;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    justify-content: space-evenly;\n    gap: 0.5em;\n    /* margin-bottom: 20px; */\n    /* max-width: 350px; */\n}\n\n.idom-device .iswitch.OFF {\n    background-color: #88A9BB;\n}\n\n.idom-device-sensor {\n    font-size: 2em;\n}\n\n.idom-device-toolbar {\n    display: flex;\n    justify-content: flex-end;\n    align-items: center;\n    padding: 6px;\n    padding-left: 10px;\n}\n\n.idom-device-body {\n    display: flex;\n    flex-direction: column;\n    align-content: center;\n    justify-content: center;\n    align-items: center;\n    flex: 1;\n    padding: 6px;\n    gap:6px;\n}\n\n.idom-device-root {\n    display: flex;\n    flex-direction: column;\n    height: 100%;\n    /* align-content: center;\n    justify-content: center;\n    align-items: center; */\n}\n\n.spinner {\n    display: inline-block;\n    width: 24px;\n    height: 24px;\n    /* margin: 100px auto; */\n    background-color: #333;\n    border-radius: 100%;\n    -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;\n    animation: sk-scaleout 1.0s infinite ease-in-out;\n}\n\n@-webkit-keyframes sk-scaleout {\n    0% {\n        -webkit-transform: scale(0)\n    }\n    100% {\n        -webkit-transform: scale(1.0);\n        opacity: 0;\n    }\n}\n\n@keyframes sk-scaleout {\n    0% {\n        -webkit-transform: scale(0);\n        transform: scale(0);\n    }\n    100% {\n        -webkit-transform: scale(1.0);\n        transform: scale(1.0);\n        opacity: 0;\n    }\n}\n\n/* */\n\n* {\n    color: #eaeaea;\n}\n\n/* */\n\ndiv, fieldset, input, select {\n    /* padding: 5px; */\n    font-size: 1em;\n}\n\nfieldset {\n    background: #4f4f4f;\n}\n\np {\n    margin: 0.5em 0;\n}\n\ninput {\n    width: 100%;\n    box-sizing: border-box;\n    -webkit-box-sizing: border-box;\n    -moz-box-sizing: border-box;\n    background: #dddddd;\n    color: #000000;\n}\n\ninput[type=checkbox], input[type=radio] {\n    width: 1em;\n    margin-right: 6px;\n    vertical-align: -1px;\n}\n\ninput[type=range] {\n    width: 99%;\n}\n\nselect {\n    width: 100%;\n    background: #dddddd;\n    color: #000000;\n}\n\ntextarea {\n    resize: vertical;\n    width: 98%;\n    height: 318px;\n    padding: 5px;\n    overflow: auto;\n    background: #1f1f1f;\n    color: #65c115;\n}\n\nbody {\n    text-align: center;\n    font-family: verdana, sans-serif;\n    background: #252525;\n}\n\ntd {\n    padding: 0px;\n}\n\nbutton {\n    border: 0;\n    border-radius: 0.3rem;\n    background: #1fa3ec;\n    color: #faffff;\n    line-height: 2.4rem;\n    font-size: 1.2rem;\n    width: 100%;\n    -webkit-transition-duration: 0.4s;\n    transition-duration: 0.4s;\n    cursor: pointer;\n}\n\nbutton:hover {\n    background: #0e70a4;\n}\n\nbutton:disabled, button[disabled] {\n    background: #cccccc;\n    cursor: default;\n}\n\n.bred {\n    background: #d43535;\n}\n\n.bred:hover {\n    background: #931f1f;\n}\n\n.bgrn {\n    background: #47c266;\n}\n\n.bgrn:hover {\n    background: #5aaf6f;\n}\n\na {\n    color: #1fa3ec;\n    text-decoration: none;\n}\n\n.p {\n    float: left;\n    text-align: left;\n}\n\n.q {\n    float: right;\n    text-align: right;\n}\n\n.r {\n    border-radius: 0.3em;\n    padding: 2px;\n    margin: 6px 2px;\n}";
+
+  // src/iinfoobject.js
+  var iInfoObject = class extends iDialogBase {
+    constructor(info) {
+      super();
+      this.info = info;
+    }
+    build() {
+      this.root.style.paddingTop = "40px";
+      const t = this.root.appendChild(document.createElement("div")).appendChild(document.createElement("table"));
+      t.parentElement.marginBottom = "auto";
+      t.parentElement.style.overflowY = "scroll";
+      this.table = t.appendChild(document.createElement("tbody"));
+      t.style.minWidth = "300px";
+      t.style.textAlign = "left";
+      Object.keys(this.info).forEach((k) => {
+        this.row(k, this.info[k] || "-");
+      });
+      const b = this.root.appendChild(document.createElement("button"));
+      b.textContent = "Close";
+      b.style.maxWidth = "300px";
+      b.style.marginTop = "20px";
+      b.style.flex = "30px";
+      b.style.marginBottom = "100px";
+      b.onclick = () => {
+        this.closeDialog();
+      };
+    }
+    row(k, v) {
+      const row = this.table.insertRow();
+      row.appendChild(document.createElement("th")).textContent = k;
+      row.appendChild(document.createElement("td")).textContent = v;
+    }
+  };
+  customElements.define("i-info-object", iInfoObject);
 
   // src/idom.js
   var mqtt = window.mqtt;
@@ -320,11 +437,12 @@
         return true;
       }
     });
+    SYS = {};
     wdevs = {};
     lastOrder = 0;
     constructor() {
       super();
-      this.worker = new Worker("idomworker.js");
+      this.worker = new Worker("idomworkerpaho.js");
       this.worker.onmessage = (m) => {
         if (m.data && m.data.action) {
           switch (m.data.action) {
@@ -351,8 +469,8 @@
       this.worker.postMessage({action: "start"});
     }
     onmessage(topic, payload) {
-      const [type, name, cmd] = topic.split("/");
       try {
+        const [type, name, cmd] = topic.split("/");
         if (cmd == "LWT") {
           this.devs[name] = {...this.devs[name] || {}, LWT: payload.toString()};
           if (this.devs[name].STATUS == void 0)
@@ -370,6 +488,18 @@
           this.devs[name] = {...this.devs[name] || {}, [cmd]: payload.toString()};
         } else if (type == "tele" && cmd == "STATE") {
           this.devs[name] = {...this.devs[name] || {}, STATE: JSON.parse(payload.toString())};
+        } else if (type == "hikmqtt") {
+          const pp = JSON.parse(payload.toString());
+          this.devs[name] = {
+            name: pp.Name,
+            image: pp.Image,
+            DeviceName: pp.Name,
+            Topic: topic,
+            Ip: pp.Ip,
+            type: "cam"
+          };
+        } else if (type == "$SYS") {
+          this.SYS[topic] = payload.toString();
         } else {
         }
       } catch (e) {
@@ -407,7 +537,9 @@
       this.loginNode.style.display = "none";
       this.main = this.appendChild(document.createElement("div"));
       this.main.className = "idom-main";
-      this.netstat = this.toolbar.appendChild(new iIcon("wifioff", 24, 24));
+      this.netstat = this.toolbar.appendChild(new iIcon("wifioff", 24, 24, () => {
+        this.appendChild(new iInfoObject(this.SYS));
+      }));
       this.logout = this.toolbar.appendChild(new iIcon("logout", 24, 24, () => {
         this.worker.postMessage({action: "logout"});
       }));
@@ -421,18 +553,29 @@
       }
     }
     render(name) {
-      if (name) {
-        if (this.wdevs[name] == void 0) {
-          this.wdevs[name] = this.main.appendChild(new iDev(name, this));
-          this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
-          this.lastOrder = localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1;
-          this.wdevs[name].className = "idom-device";
-        }
-        this.wdevs[name].update(this.devs[name]);
-      } else {
+      if (name === void 0) {
+        console.log(this.devs);
         Object.keys(this.devs).forEach((e) => {
           this.render(e);
         });
+      } else {
+        if (this.wdevs[name] == void 0) {
+          switch (this.devs[name].type) {
+            case "cam":
+              this.wdevs[name] = this.main.appendChild(new iDevCam(name, this));
+              this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
+              this.lastOrder = localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1;
+              this.wdevs[name].className = "idom-device";
+              break;
+            default:
+              this.wdevs[name] = this.main.appendChild(new iDev(name, this));
+              this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
+              this.lastOrder = localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1;
+              this.wdevs[name].className = "idom-device";
+              break;
+          }
+        }
+        this.wdevs[name].update(this.devs[name]);
       }
     }
     publish(topic, payload) {

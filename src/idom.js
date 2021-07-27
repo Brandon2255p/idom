@@ -4,6 +4,7 @@ import { iDev } from "./idev";
 import { iDevCam } from "./idevcam";
 import css from "./tasmota.css";
 import { iIcon } from "./iicon";
+import { iInfoObject } from "./iinfoobject";
 
 const mqtt = window.mqtt;
 
@@ -16,6 +17,7 @@ class iDom extends HTMLElement {
             return true;
         }
     });
+    SYS = {};
 
     wdevs = {};
     lastOrder = 0;
@@ -70,12 +72,18 @@ class iDom extends HTMLElement {
                 this.devs[name] = { ...(this.devs[name] || {}), [cmd]: payload.toString() };
             } else if (type == "tele" && cmd == "STATE") {
                 this.devs[name] = { ...(this.devs[name] || {}), STATE: JSON.parse(payload.toString()) };
-            } else if (type == "camsnap") {
-                console.log(type, name);
+            } else if (type == "hikmqtt") {
+                const pp = JSON.parse(payload.toString())
                 this.devs[name] = {
-                    name: name, image: payload,
+                    name: pp.Name, image: pp.Image,
+                    DeviceName: pp.Name,
+                    Topic: topic,
+                    Ip: pp.Ip,
                     type: "cam"
                 }
+            } else if (type == "$SYS") {
+                // console.log("Statistics", topic, payload.toString());
+                this.SYS[topic] = payload.toString();
             } else {
                 //console.log(topic, payload.toString());
             }
@@ -126,7 +134,9 @@ class iDom extends HTMLElement {
         // this.main.style.flexDirection = "column";
         // this.main.style.gap = "1rem";
 
-        this.netstat = this.toolbar.appendChild(new iIcon("wifioff", 24, 24));
+        this.netstat = this.toolbar.appendChild(new iIcon("wifioff", 24, 24, () => {
+            this.appendChild(new iInfoObject(this.SYS));
+        }));
 
         this.logout = this.toolbar.appendChild(new iIcon("logout", 24, 24, () => {
             this.worker.postMessage({ action: "logout" });
@@ -153,8 +163,13 @@ class iDom extends HTMLElement {
     // }
 
     render(name) {
-        // console.log("render", name);
-        if (name) {
+        if (name === undefined) {
+            console.log(this.devs);
+            Object.keys(this.devs).forEach(e => {
+                this.render(e);
+            });
+
+        } else {
             if (this.wdevs[name] == undefined) {
                 switch (this.devs[name].type) {
                     case "cam":
@@ -172,10 +187,6 @@ class iDom extends HTMLElement {
                 }
             }
             this.wdevs[name].update(this.devs[name]);
-        } else {
-            Object.keys(this.devs).forEach(e => {
-                this.render(e);
-            });
         }
     }
 

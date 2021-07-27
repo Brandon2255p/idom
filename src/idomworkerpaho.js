@@ -2,6 +2,14 @@ importScripts('paho-mqtt.js');
 
 let client = undefined;
 
+
+var firstPart = (Math.random() * 46656) | 0;
+var secondPart = (Math.random() * 46656) | 0;
+firstPart = ("000" + firstPart.toString(36)).slice(-3);
+secondPart = ("000" + secondPart.toString(36)).slice(-3);
+const uid = firstPart + secondPart;
+
+
 onmessage = (m) => {
 
     if (m.data && m.data.action) {
@@ -11,7 +19,7 @@ onmessage = (m) => {
                 break;
             case "connect":
                 // console.log("connect");
-                client = new Paho.Client(m.data.url + (m.data.url.endsWith("/") ? "" : "/"), "jspahocli");
+                client = new Paho.Client(m.data.url + (m.data.url.endsWith("/") ? "" : "/"), "jspahocli" + uid);
                 client.onConnectionLost = () => { console.log("onConnectionLost"); postMessage({ action: "disconnected" }); }
                 client.onMessageArrived = (m) => {
                     // console.log("onMessageArrived", m);
@@ -20,15 +28,16 @@ onmessage = (m) => {
                 client.connect({
                     userName: m.data.username,
                     password: m.data.password,
-                    timeout: 3,
+                    timeout: 10,
                     reconnect: true,
-                    keepAliveInterval: 3,
+                    keepAliveInterval: 10,
                     onSuccess: () => {
                         // console.log("onSuccess");
                         postMessage({ action: "connected" });
                         client.subscribe("stat/#");
                         client.subscribe("tele/#");
-                        client.subscribe("camsnap/#");
+                        client.subscribe("hikmqtt/#");
+                        client.subscribe("$SYS/#");
                     },
                     onFailure: () => {
                         console.log("onFailure");
