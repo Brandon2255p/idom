@@ -26,8 +26,28 @@ class iDom extends HTMLElement {
 
     constructor() {
         super();
-        this.worker = new Worker("idomworkernats.js");
-        this.worker.onmessage = (m) => {
+        this.worker = {
+            nats: new Worker("idomworkernats.js"),
+            mqtt: new Worker("idomworkerpaho.js"),
+            setonmessage(onm) {
+                this.nats.onmessage = onm;
+                this.mqtt.onmessage = onm;
+            },
+            postMessage(o) {
+                switch (this.p) {
+                    case "mqtt":
+                        this.mqtt.postMessage(o);
+                        break;
+                    default:
+                        this.nats.postMessage(o);
+                        break;
+                }
+            },
+            setProtocol(p) {
+                this.p = p;
+            }
+        }
+        this.worker.setonmessage((m) => {
 
             if (m.data && m.data.action) {
                 switch (m.data.action) {
@@ -54,7 +74,7 @@ class iDom extends HTMLElement {
                         break;
                 }
             }
-        }
+        });
         this.worker.postMessage({ action: "start" });
     }
 
@@ -114,10 +134,11 @@ class iDom extends HTMLElement {
         this.toolbar = this.appendChild(document.createElement("div"));
         this.toolbar.className = "idom-toolbar";
 
-        this.loginNode = this.appendChild(new iLogin((url, username, password) => {
+        this.loginNode = this.appendChild(new iLogin((url, username, password, protocol) => {
             localStorage.setItem("idom_url", url);
             localStorage.setItem("idom_username", username);
             localStorage.setItem("idom_password", password);
+            localStorage.setItem("idom_protocol", protocol);
             this.loadingNode.style.display = "block";
             this.connect();
         }));
@@ -184,6 +205,7 @@ class iDom extends HTMLElement {
 
     connect() {
         if (localStorage.getItem("idom_username") && localStorage.getItem("idom_password")) {
+            this.worker.setProtocol(localStorage.getItem("idom_protocol") || "nats");
             this.worker.postMessage({ action: "connect", url: localStorage.getItem("idom_url") || 'ws://' + location.host, username: localStorage.getItem("idom_username"), password: localStorage.getItem("idom_password") });
         } else {
             this.loginDialog();

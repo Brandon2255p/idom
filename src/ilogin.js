@@ -43,7 +43,13 @@ export class iLogin extends iDialogBase {
         this.content.style.padding = "50px";
 
         this.content.innerHTML = `
-            <h1>iDom v.0.0.5</h1>
+            <h1>iDom v.0.1.0</h1>
+            <div style="display: flex;align-content: stretch;justify-content: space-evenly;align-items: center;">
+                <select id="protocol">
+                    <option value="nats">NATS WS</option>
+                    <option value="mqtt">MQTT WS</option>
+                </select>
+            </div>
             <div style="display: flex;align-content: stretch;justify-content: space-evenly;align-items: center;">
                 <div style="width: 24px;"><i-icon name="url" ></i-icon></div><div><input id="url" type="text" style="width: 100%;"></div>
             </div>
@@ -55,6 +61,10 @@ export class iLogin extends iDialogBase {
             </div>
             <button>Connect</button>
         `;
+
+        this.protocol = this.content.querySelector("#protocol");
+        this.protocol.value = localStorage.getItem("idom_protocol") || "nats";
+
         this.url = this.content.querySelector("#url");
         this.url.value = localStorage.getItem("idom_url") || 'ws://' + location.host;
         this.url.addEventListener("input", (a) => this.validate())
@@ -68,7 +78,7 @@ export class iLogin extends iDialogBase {
         this.button = this.content.querySelector("button");
         this.button.disabled = true;
         this.button.addEventListener("click", () => {
-            this.onconnect(this.url.value, this.username.value, this.password.value);
+            this.onconnect(this.url.value, this.username.value, this.password.value, this.protocol.value);
         });
         this.validate();
     }

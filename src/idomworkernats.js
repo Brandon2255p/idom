@@ -15,6 +15,7 @@ onmessage = (m) => {
     if (m.data && m.data.action) {
         switch (m.data.action) {
             case "logout":
+                client.close();
                 // client.disconnect();
                 break;
             case "connect":
@@ -44,7 +45,9 @@ onmessage = (m) => {
                             }
                         }
                     })().then();
-
+                    client.closed().then(() => {
+                        postMessage({ action: "disconnected" });
+                    })
                 });
 
                 // client = new Paho.Client(m.data.url + (m.data.url.endsWith("/") ? "" : "/"), "jspahocli" + uid);

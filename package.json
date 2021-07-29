@@ -5,8 +5,6 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "hybrids": "^6.0.0",
-    "mqtt": "^4.2.8",
     "nats": "^2.1.0",
     "nats.ws": "^1.2.0",
     "sharp": "^0.28.3",
@@ -15,5 +13,8 @@
   "scripts": {
     "dev": "esbuild src/idom.js src/idomworkernats.js src/idomworkerpaho.js src/idomsw.js --bundle --servedir=public --outdir=public --loader:.css=text",
     "build": "esbuild src/idom.js src/idomworkernats.js src/idomworkerpaho.js src/idomsw.js --bundle --outdir=public --loader:.css=text"
+  },
+  "devDependencies": {
+    "esbuild": "^0.12.16"
   }
 }

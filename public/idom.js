@@ -465,28 +465,28 @@
           }
         }
       };
-      this.worker.postMessage({action: "start"});
+      this.worker.postMessage({ action: "start" });
     }
     onmessage(topic, payload) {
       try {
         const [type, name, cmd] = topic.split("/");
         if (cmd == "LWT") {
-          this.devs[name] = {...this.devs[name] || {}, LWT: payload.toString()};
+          this.devs[name] = { ...this.devs[name] || {}, LWT: payload.toString() };
           if (this.devs[name].STATUS == void 0)
-            this.worker.postMessage({action: "publish", topic: `cmnd/${name}/STATUS`, payload: ""});
+            this.worker.postMessage({ action: "publish", topic: `cmnd/${name}/STATUS`, payload: "" });
           if (this.devs[name].STATUS5 == void 0)
-            this.worker.postMessage({action: "publish", topic: `cmnd/${name}/STATUS`, payload: "5"});
-          this.worker.postMessage({action: "publish", topic: `cmnd/${name}/STATE`, payload: ""});
+            this.worker.postMessage({ action: "publish", topic: `cmnd/${name}/STATUS`, payload: "5" });
+          this.worker.postMessage({ action: "publish", topic: `cmnd/${name}/STATE`, payload: "" });
         } else if (type == "stat" && cmd.startsWith("STATUS")) {
-          this.devs[name] = {...this.devs[name] || {}, [cmd]: JSON.parse(payload.toString())};
+          this.devs[name] = { ...this.devs[name] || {}, [cmd]: JSON.parse(payload.toString()) };
         } else if (cmd == "RESULT") {
-          this.devs[name] = {...this.devs[name] || {}, RESULT: JSON.parse(payload.toString())};
+          this.devs[name] = { ...this.devs[name] || {}, RESULT: JSON.parse(payload.toString()) };
         } else if (cmd == "SENSOR") {
-          this.devs[name] = {...this.devs[name] || {}, SENSOR: JSON.parse(payload.toString())};
+          this.devs[name] = { ...this.devs[name] || {}, SENSOR: JSON.parse(payload.toString()) };
         } else if (type == "stat") {
-          this.devs[name] = {...this.devs[name] || {}, [cmd]: payload.toString()};
+          this.devs[name] = { ...this.devs[name] || {}, [cmd]: payload.toString() };
         } else if (type == "tele" && cmd == "STATE") {
-          this.devs[name] = {...this.devs[name] || {}, STATE: JSON.parse(payload.toString())};
+          this.devs[name] = { ...this.devs[name] || {}, STATE: JSON.parse(payload.toString()) };
         } else if (type == "hikmqtt") {
           const pp = JSON.parse(payload.toString());
           this.devs[name] = {
@@ -529,17 +529,17 @@
       this.main.style.gap = "1rem";
       this.netstat = this.toolbar.appendChild(new iIcon("wifioff", 24, 24, () => {
         console.log(this.grid.save().map((e) => {
-          return {...e, content: void 0};
+          return { ...e, content: void 0 };
         }));
       }));
       this.logout = this.toolbar.appendChild(new iIcon("logout", 24, 24, () => {
-        this.worker.postMessage({action: "logout"});
+        this.worker.postMessage({ action: "logout" });
       }));
       this.connect();
     }
     connect() {
       if (localStorage.getItem("idom_username") && localStorage.getItem("idom_password")) {
-        this.worker.postMessage({action: "connect", url: localStorage.getItem("idom_url") || "ws://" + location.host, username: localStorage.getItem("idom_username"), password: localStorage.getItem("idom_password")});
+        this.worker.postMessage({ action: "connect", url: localStorage.getItem("idom_url") || "ws://" + location.host, username: localStorage.getItem("idom_username"), password: localStorage.getItem("idom_password") });
       } else {
         this.loginDialog();
       }
@@ -571,7 +571,7 @@
       }
     }
     publish(topic, payload) {
-      this.worker.postMessage({action: "publish", topic, payload});
+      this.worker.postMessage({ action: "publish", topic, payload });
     }
   };
   customElements.define("i-dom", iDom);
