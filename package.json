@@ -5,12 +5,16 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "gridstack": "^4.2.6",
     "hybrids": "^6.0.0",
     "mqtt": "^4.2.8",
-    "sharp": "^0.28.3"
+    "nats": "^2.1.0",
+    "nats.ws": "^1.2.0",
+    "sharp": "^0.28.3",
+    "websocket": "^1.0.34"
   },
   "scripts": {
-    "dev": "esbuild src/idom.js src/idomworkerpaho.js src/idomsw.js --bundle --servedir=public --outdir=public --loader:.css=text",
-    "build": "esbuild src/idom.js src/idomworkerpaho.js src/idomsw.js --bundle --outdir=public --loader:.css=text"
+    "dev": "esbuild src/idom.js src/idomworkernats.js src/idomsw.js --bundle --servedir=public --outdir=public --loader:.css=text",
+    "build": "esbuild src/idom.js src/idomworkernats.js src/idomsw.js --bundle --outdir=public --loader:.css=text"
   }
 }

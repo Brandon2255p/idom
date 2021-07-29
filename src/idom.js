@@ -5,6 +5,12 @@ import { iDevCam } from "./idevcam";
 import css from "./tasmota.css";
 import { iIcon } from "./iicon";
 import { iInfoObject } from "./iinfoobject";
+import "gridstack/dist/h5/gridstack-dd-native"; //"gridstack/dist/gridstack-h5.js";
+import { GridStack } from "gridstack"
+import gridstackcss from "gridstack/dist/gridstack.min.css"
+import gridstackextracss from "gridstack/dist/gridstack-extra.min.css"
+
+// console.log(gg);
 
 const mqtt = window.mqtt;
 
@@ -24,17 +30,19 @@ class iDom extends HTMLElement {
 
     constructor() {
         super();
-        this.worker = new Worker("idomworkerpaho.js");
+        this.worker = new Worker("idomworkernats.js");
         this.worker.onmessage = (m) => {
 
             if (m.data && m.data.action) {
                 switch (m.data.action) {
                     case "login":
                         this.loginDialog();
+
                         break;
                     case "disconnected":
                         this.netstat.setName("wifioff");
                         this.loginDialog();
+
                         break;
                     case "connected":
                         this.netstat.setName("wifi");
@@ -44,6 +52,7 @@ class iDom extends HTMLElement {
                         break;
                     case "message":
                         this.onmessage(m.data.topic, m.data.payload);
+
                         break;
                     default:
                         break;
@@ -101,8 +110,10 @@ class iDom extends HTMLElement {
 
     connectedCallback() {
         const s = this.appendChild(document.createElement("style"));
-        s.innerHTML = css;
+        s.innerHTML = css + "\n" + gridstackcss + "\n" + gridstackextracss;
+
         this.root = this.appendChild(document.createElement("div"));
+
         this.loadingNode = this.appendChild(new iLoading());
         this.toolbar = this.appendChild(document.createElement("div"));
         this.toolbar.style.paddingTop = "6px";
@@ -127,15 +138,19 @@ class iDom extends HTMLElement {
         }));
         this.loginNode.style.display = "none";
 
-        this.main = this.appendChild(document.createElement("div"));
-        this.main.className = "idom-main";
+        // this.main = this.appendChild(document.createElement("div"));
+        // this.main.className = "idom-main";
+
         // this.main.style.paddingBottom = "60px";
         // this.main.style.display = "flex";
         // this.main.style.flexDirection = "column";
         // this.main.style.gap = "1rem";
 
         this.netstat = this.toolbar.appendChild(new iIcon("wifioff", 24, 24, () => {
-            this.appendChild(new iInfoObject(this.SYS));
+            console.log(this.grid.save().map(e => {
+                return { ...e, content: undefined };
+            }));
+            //this.appendChild(new iInfoObject(this.SYS));
         }));
 
         this.logout = this.toolbar.appendChild(new iIcon("logout", 24, 24, () => {
@@ -143,6 +158,43 @@ class iDom extends HTMLElement {
         }));
 
         this.connect();
+        this.buildGrid();
+    }
+
+    resizeGrid() {
+        let width = document.body.clientWidth;
+        let layout = 'move';
+        if (width < 400) {
+            this.grid.column(1, layout).cellHeight('150px');
+        } else if (width < 700) {
+            this.grid.column(1, layout).cellHeight('100px');
+        } else if (width < 850) {
+            this.grid.column(3, layout).cellHeight('100px');
+        } else if (width < 950) {
+            this.grid.column(6, layout).cellHeight('100px');
+        } else if (width < 1100) {
+            this.grid.column(8, layout).cellHeight('100px');
+        } else {
+            this.grid.column(12, layout).cellHeight('100px');
+        }
+    };
+    buildGrid() {
+        this.gridNode = this.appendChild(document.createElement("div"));
+        this.gridNode.className = "grid-stack";
+        this.grid = GridStack.init({
+            disableDrag: false,
+            alwaysShowResizeHandle: true,
+            // disableOneColumnMode: true,
+            cellHeight: '20vh',
+            float: true
+            // cellHeight: "120px"
+        }, this.gridNode);
+        this.grid.load([
+            // { content: 'my first widget' }, // will default to location (0,0) and 1x1
+            // { w: 2, content: 'another longer widget!' } // will be placed next at (1,0) and 2x1
+        ]);
+        //this.resizeGrid();
+        // window.addEventListener('resize', () => { this.resizeGrid() });
     }
 
     connect() {
@@ -162,6 +214,19 @@ class iDom extends HTMLElement {
     //     })
     // }
 
+    _addWidget(name, dev) {
+        const tmp = document.createElement("div");
+        tmp.className = "grid-stack-item";
+        tmp.innerHTML = `<div class="grid-stack-item-content"></div>`;
+
+        this.wdevs[name] = tmp.firstChild.appendChild(dev);
+        this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
+        this.lastOrder = (localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1);
+        this.wdevs[name].className = "idom-device";
+
+        this.grid.addWidget(tmp, { w: 3, h: 2, id: name });
+    }
+
     render(name) {
         if (name === undefined) {
             console.log(this.devs);
@@ -173,16 +238,30 @@ class iDom extends HTMLElement {
             if (this.wdevs[name] == undefined) {
                 switch (this.devs[name].type) {
                     case "cam":
-                        this.wdevs[name] = this.main.appendChild(new iDevCam(name, this));
-                        this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
-                        this.lastOrder = (localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1);
-                        this.wdevs[name].className = "idom-device";
+                        this._addWidget(name, new iDevCam(name, this))
+                        // const tmp = document.createElement("div");
+                        // tmp.className = "grid-stack-item";
+                        // tmp.innerHTML = `<div class="grid-stack-item-content"></div>`;
+
+                        // this.wdevs[name] = tmp.firstChild.appendChild(new iDevCam(name, this));
+                        // this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
+                        // this.lastOrder = (localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1);
+                        // this.wdevs[name].className = "idom-device";
+
+                        // this.grid.addWidget(tmp, { w: 1, h: 1 });
                         break;
                     default:
-                        this.wdevs[name] = this.main.appendChild(new iDev(name, this));
-                        this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
-                        this.lastOrder = (localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1);
-                        this.wdevs[name].className = "idom-device";
+                        this._addWidget(name, new iDev(name, this))
+                        // const tmp = document.createElement("div");
+                        // tmp.className = "grid-stack-item";
+                        // tmp.innerHTML = `<div class="grid-stack-item-content"></div>`;
+
+                        // this.wdevs[name] = tmp.firstChild.appendChild(new iDev(name, this));//this.main.appendChild(new iDev(name, this));
+                        // this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
+                        // this.lastOrder = (localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1);
+                        // this.wdevs[name].className = "idom-device";
+
+                        // this.grid.addWidget(tmp, { w: 1, h: 1 });
                         break;
                 }
             }

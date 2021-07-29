@@ -38,10 +38,13 @@ export class iDev extends iDevBase {
         this.dev = dev;
         // console.log(dev);
         this.statusNode.textContent = dev.LWT || "";
-        if (dev.SENSOR) {
-            this.sensorNode.style.display = "block";
-            const tmp = dev.SENSOR.AM2301 || dev.SENSOR.SI7021;
-            this.sensorNode.innerHTML = tmp ? `<i-icon width="24" height="24" name="temp" ></i-icon>${tmp.Temperature}C <i-icon width="24" height="24" name="hum" style="padding-left: 20px" ></i-icon> ${tmp.Humidity}%` : "?";
+        if (dev.SENSOR || dev.STATUS8) {
+            const sensor = dev.SENSOR || dev.STATUS8.StatusSNS;
+            const tmp = sensor.AM2301 || sensor.SI7021;
+            if (tmp) {
+                this.sensorNode.style.display = "block";
+                this.sensorNode.innerHTML = tmp ? `<i-icon width="24" height="24" name="temp" ></i-icon>${tmp.Temperature}C <i-icon width="24" height="24" name="hum" style="padding-left: 20px" ></i-icon> ${tmp.Humidity}%` : "?";
+            }
         }
 
         if (dev.STATUS) {

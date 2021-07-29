@@ -1,11 +1,18 @@
 /* THEME */
+.grid-stack { 
+    background: #252525;
+    /* height: 100% !important; */
+}
+.grid-stack-item-content { 
+    background-color:  #252525;
+    display: flex;
+    flex-direction: column;
+}
 
-.idom-main {
+/* .idom-main {
     padding: 10px;
     padding-bottom: 60px;
 
-    /* display: flex;
-    flex-direction: column; */
     display: grid;
     grid-template-columns: repeat(3, 1fr);
 
@@ -55,11 +62,12 @@
         gap: 1rem;
         background-color: #252525;
     }    
-}
+} */
 
 .idom-device {
     background-color: #283239;
     border-radius: 0.5em;
+    flex: 1;
 }
 
 .idom-device h2 {
