@@ -31,8 +31,8 @@ export class iDevBase extends HTMLElement {
                 }
             }
         }
-        // this.upbutton = new iIcon("up", 24, 24, () => swap(true));
-        // this.downbutton = new iIcon("down", 24, 24, () => swap(false));
+        this.upbutton = new iIcon("up", 24, 24, () => swap(true));
+        this.downbutton = new iIcon("down", 24, 24, () => swap(false));
         this.infobutton = new iIcon("info", 18, 18, () => {
             this.parentElement.parentElement.parentElement.appendChild(new iInfo(this.dev));
         });
@@ -50,8 +50,8 @@ export class iDevBase extends HTMLElement {
     buildToolbar() {
         this.toolbar = this.root.appendChild(document.createElement("div"));
         this.toolbar.appendChild(this.infobutton);
-        // this.toolbar.appendChild(this.upbutton);
-        // this.toolbar.appendChild(this.downbutton);
+        this.toolbar.appendChild(this.upbutton);
+        this.toolbar.appendChild(this.downbutton);
         this.toolbar.style.position = "relative";
         this.toolbar.className = "idom-device-toolbar";
     }

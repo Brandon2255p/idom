@@ -1,4 +1,5 @@
-importScripts('paho-mqtt.js');
+// importScripts('paho-mqtt.js');
+const Paho = require("./paho-mqtt");
 
 let client = undefined;
 

@@ -7151,7 +7151,7 @@ ${k}: ${v[i]}`;
           break;
         case "connect":
           console.log("connect");
-          (0, import_nats.connect)({servers: m.data.url, user: m.data.username, pass: m.data.password, pingInterval: 2e3}).then((cli) => {
+          (0, import_nats.connect)({servers: m.data.url, user: m.data.username, pass: m.data.password, pingInterval: 2e3, maxReconnectAttempts: -1}).then((cli) => {
             client = cli;
             postMessage({action: "connected"});
             handle(client.subscribe("stat.>"));
@@ -7167,9 +7167,10 @@ ${k}: ${v[i]}`;
             client.publish("cmnd.sonoffs.STATUS", sc.encode("8"));
             (async () => {
               for await (const s of client.status()) {
-                console.info(`${s.type}: ${s.data}`);
                 if (s.type == "disconnect") {
                   postMessage({action: "disconnected"});
+                } else if (s.type == "reconnect") {
+                  postMessage({action: "connected"});
                 }
               }
             })().then();

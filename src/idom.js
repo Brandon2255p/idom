@@ -5,10 +5,6 @@ import { iDevCam } from "./idevcam";
 import css from "./tasmota.css";
 import { iIcon } from "./iicon";
 import { iInfoObject } from "./iinfoobject";
-import "gridstack/dist/h5/gridstack-dd-native"; //"gridstack/dist/gridstack-h5.js";
-import { GridStack } from "gridstack"
-import gridstackcss from "gridstack/dist/gridstack.min.css"
-import gridstackextracss from "gridstack/dist/gridstack-extra.min.css"
 
 // console.log(gg);
 
@@ -110,24 +106,13 @@ class iDom extends HTMLElement {
 
     connectedCallback() {
         const s = this.appendChild(document.createElement("style"));
-        s.innerHTML = css + "\n" + gridstackcss + "\n" + gridstackextracss;
+        s.innerHTML = css;
 
         this.root = this.appendChild(document.createElement("div"));
 
         this.loadingNode = this.appendChild(new iLoading());
         this.toolbar = this.appendChild(document.createElement("div"));
-        this.toolbar.style.paddingTop = "6px";
-        this.toolbar.style.position = "fixed";
-        this.toolbar.style.bottom = "0";
-        this.toolbar.style.left = "0";
-        this.toolbar.style.backgroundColor = "black";
-        this.toolbar.style.height = "54px";
-        this.toolbar.style.width = "100%";
-        this.toolbar.style.display = "flex";
-        this.toolbar.style.alignContent = "center";
-        this.toolbar.style.justifyContent = "space-evenly";
-        this.toolbar.style.alignItems = "flex-start";
-        this.toolbar.style.flexDirection = "row";
+        this.toolbar.className = "idom-toolbar";
 
         this.loginNode = this.appendChild(new iLogin((url, username, password) => {
             localStorage.setItem("idom_url", url);
@@ -138,13 +123,13 @@ class iDom extends HTMLElement {
         }));
         this.loginNode.style.display = "none";
 
-        // this.main = this.appendChild(document.createElement("div"));
-        // this.main.className = "idom-main";
+        this.main = this.appendChild(document.createElement("div"));
+        this.main.className = "idom-main";
 
-        // this.main.style.paddingBottom = "60px";
+        this.main.style.paddingBottom = "60px";
         // this.main.style.display = "flex";
         // this.main.style.flexDirection = "column";
-        // this.main.style.gap = "1rem";
+        this.main.style.gap = "1rem";
 
         this.netstat = this.toolbar.appendChild(new iIcon("wifioff", 24, 24, () => {
             console.log(this.grid.save().map(e => {
@@ -158,44 +143,44 @@ class iDom extends HTMLElement {
         }));
 
         this.connect();
-        this.buildGrid();
+        // this.buildGrid();
     }
 
-    resizeGrid() {
-        let width = document.body.clientWidth;
-        let layout = 'move';
-        if (width < 400) {
-            this.grid.column(1, layout).cellHeight('150px');
-        } else if (width < 700) {
-            this.grid.column(1, layout).cellHeight('100px');
-        } else if (width < 850) {
-            this.grid.column(3, layout).cellHeight('100px');
-        } else if (width < 950) {
-            this.grid.column(6, layout).cellHeight('100px');
-        } else if (width < 1100) {
-            this.grid.column(8, layout).cellHeight('100px');
-        } else {
-            this.grid.column(12, layout).cellHeight('100px');
-        }
-    };
-    buildGrid() {
-        this.gridNode = this.appendChild(document.createElement("div"));
-        this.gridNode.className = "grid-stack";
-        this.grid = GridStack.init({
-            disableDrag: false,
-            alwaysShowResizeHandle: true,
-            // disableOneColumnMode: true,
-            cellHeight: '20vh',
-            float: true
-            // cellHeight: "120px"
-        }, this.gridNode);
-        this.grid.load([
-            // { content: 'my first widget' }, // will default to location (0,0) and 1x1
-            // { w: 2, content: 'another longer widget!' } // will be placed next at (1,0) and 2x1
-        ]);
-        //this.resizeGrid();
-        // window.addEventListener('resize', () => { this.resizeGrid() });
-    }
+    // resizeGrid() {
+    //     let width = document.body.clientWidth;
+    //     let layout = 'move';
+    //     if (width < 400) {
+    //         this.grid.column(1, layout).cellHeight('150px');
+    //     } else if (width < 700) {
+    //         this.grid.column(1, layout).cellHeight('100px');
+    //     } else if (width < 850) {
+    //         this.grid.column(3, layout).cellHeight('100px');
+    //     } else if (width < 950) {
+    //         this.grid.column(6, layout).cellHeight('100px');
+    //     } else if (width < 1100) {
+    //         this.grid.column(8, layout).cellHeight('100px');
+    //     } else {
+    //         this.grid.column(12, layout).cellHeight('100px');
+    //     }
+    // };
+    // buildGrid() {
+    //     this.gridNode = this.appendChild(document.createElement("div"));
+    //     this.gridNode.className = "grid-stack";
+    //     this.grid = GridStack.init({
+    //         disableDrag: false,
+    //         alwaysShowResizeHandle: true,
+    //         // disableOneColumnMode: true,
+    //         cellHeight: '20vh',
+    //         float: true
+    //         // cellHeight: "120px"
+    //     }, this.gridNode);
+    //     this.grid.load([
+    //         // { content: 'my first widget' }, // will default to location (0,0) and 1x1
+    //         // { w: 2, content: 'another longer widget!' } // will be placed next at (1,0) and 2x1
+    //     ]);
+    //     //this.resizeGrid();
+    //     // window.addEventListener('resize', () => { this.resizeGrid() });
+    // }
 
     connect() {
         if (localStorage.getItem("idom_username") && localStorage.getItem("idom_password")) {
@@ -215,16 +200,14 @@ class iDom extends HTMLElement {
     // }
 
     _addWidget(name, dev) {
-        const tmp = document.createElement("div");
-        tmp.className = "grid-stack-item";
-        tmp.innerHTML = `<div class="grid-stack-item-content"></div>`;
-
-        this.wdevs[name] = tmp.firstChild.appendChild(dev);
+        // const tmp = document.createElement("div");
+        // tmp.className = "grid-stack-item";
+        // tmp.innerHTML = `<div class="grid-stack-item-content"></div>`;
+        this.wdevs[name] = this.main.appendChild(dev);
         this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
         this.lastOrder = (localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1);
         this.wdevs[name].className = "idom-device";
-
-        this.grid.addWidget(tmp, { w: 3, h: 2, id: name });
+        // this.grid.addWidget(tmp, { w: 3, h: 2, id: name });
     }
 
     render(name) {

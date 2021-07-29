@@ -11,7 +11,8 @@ export class iDevCam extends iDevBase {
         // this.main.style.justifyContent = "center";
         // this.main.style.alignContent = "stretch";
         // this.main.style.alignItems = "stretch";
-        this.imgNode = this.main.appendChild(document.createElement("img"));
+        this.imgNode = this.body.appendChild(document.createElement("img"));
+        this.body.style.padding = "0px";
         this.imgNode.setAttribute("width", "100%");
     }
 
