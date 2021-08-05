@@ -6632,6 +6632,7 @@ ${k}: ${v[i]}`;
     if (m.data && m.data.action) {
       switch (m.data.action) {
         case "logout":
+          client.close();
           break;
         case "connect":
           console.log("connect");
@@ -6641,6 +6642,7 @@ ${k}: ${v[i]}`;
             handle(client.subscribe("stat.>"));
             handle(client.subscribe("tele.>"));
             handle(client.subscribe("hikmqtt.>"));
+            handle(client.subscribe("weather.>"));
             client.publish("cmnd.tasmotas.STATE", sc.encode(""));
             client.publish("cmnd.tasmotas.STATUS", sc.encode(""));
             client.publish("cmnd.tasmotas.STATUS", sc.encode("5"));
@@ -6658,6 +6660,9 @@ ${k}: ${v[i]}`;
                 }
               }
             })().then();
+            client.closed().then(() => {
+              postMessage({ action: "disconnected" });
+            });
           });
           break;
         case "publish":

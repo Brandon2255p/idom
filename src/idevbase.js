@@ -1,7 +1,18 @@
 import { iInfo } from "./iinfo";
 import { iIcon } from "./iicon";
+import { iDevConfig } from "./idevconfig";
 
 export class iDevBase extends HTMLElement {
+
+    get group() {
+        return localStorage.getItem("idom_group|" + this.name) || "Other";
+    }
+
+    set group(v) {
+        localStorage.setItem("idom_group|" + this.name, v);
+    }
+
+
     constructor(name, idom) {
         super();
         this.name = name;
@@ -37,6 +48,10 @@ export class iDevBase extends HTMLElement {
             this.parentElement.parentElement.parentElement.appendChild(new iInfo(this.dev));
         });
         this.infobutton.style.paddingRight = "4px";
+        this.configbutton = new iIcon("config", 18, 18, () => {
+            this.parentElement.parentElement.parentElement.appendChild(new iDevConfig(this));
+        });
+        this.configbutton.style.paddingRight = "8px";
 
         this.buildToolbar();
         this.buildTitle();
@@ -49,6 +64,7 @@ export class iDevBase extends HTMLElement {
 
     buildToolbar() {
         this.toolbar = this.root.appendChild(document.createElement("div"));
+        this.toolbar.appendChild(this.configbutton);
         this.toolbar.appendChild(this.infobutton);
         this.toolbar.appendChild(this.upbutton);
         this.toolbar.appendChild(this.downbutton);

@@ -24,6 +24,7 @@ export class iInfoObject extends iDialogBase {
         const b = this.root.appendChild(document.createElement("button"));
         b.textContent = "Close";
         b.style.maxWidth = "300px";
+        b.style.maxHeight = "50px";
         b.style.marginTop = "20px";
         b.style.flex = "30px";
         b.style.marginBottom = "100px";

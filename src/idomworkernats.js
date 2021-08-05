@@ -3,7 +3,6 @@ import { connect, StringCodec } from "nats.ws";
 const sc = StringCodec();
 async function handle(s) {
     for await (const m of s) {
-        //console.log(`[${s.getProcessed()}]: ${m.subject}`); //${sc.decode(m.data)}
         postMessage({ action: "message", topic: m.subject.replaceAll(".", "/"), payload: sc.decode(m.data) });
     }
     console.log("subscription closed");
@@ -26,6 +25,7 @@ onmessage = (m) => {
                     handle(client.subscribe("stat.>"));
                     handle(client.subscribe("tele.>"));
                     handle(client.subscribe("hikmqtt.>"));
+                    handle(client.subscribe("weather.>"));
                     client.publish("cmnd.tasmotas.STATE", sc.encode(""));
                     client.publish("cmnd.tasmotas.STATUS", sc.encode(""));
                     client.publish("cmnd.tasmotas.STATUS", sc.encode("5"));

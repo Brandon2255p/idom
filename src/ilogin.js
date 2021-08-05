@@ -43,7 +43,7 @@ export class iLogin extends iDialogBase {
         this.content.style.padding = "50px";
 
         this.content.innerHTML = `
-            <h1>iDom v.0.1.0</h1>
+            <h1>iDom v.0.1.1</h1>
             <div style="display: flex;align-content: stretch;justify-content: space-evenly;align-items: center;">
                 <select id="protocol">
                     <option value="nats">NATS WS</option>

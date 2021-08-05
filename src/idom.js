@@ -2,6 +2,7 @@ import { iLoading } from "./iloading";
 import { iLogin } from "./ilogin";
 import { iDev } from "./idev";
 import { iDevCam } from "./idevcam";
+import { iDevWeather } from "./idevweather";
 import css from "./tasmota.css";
 import { iIcon } from "./iicon";
 import { iInfoObject } from "./iinfoobject";
@@ -97,6 +98,17 @@ class iDom extends HTMLElement {
                 this.devs[name] = { ...(this.devs[name] || {}), [cmd]: payload.toString() };
             } else if (type == "tele" && cmd == "STATE") {
                 this.devs[name] = { ...(this.devs[name] || {}), STATE: JSON.parse(payload.toString()) };
+            } else if (type == "weather") {
+                console.log("weather");
+                const pp = JSON.parse(payload.toString())
+                this.devs[name + "#" + cmd] = {
+                    name: name + "#" + cmd,
+                    DeviceName: name + "#" + cmd,
+                    Topic: topic,
+                    data: pp,
+                    //Ip: pp.Ip,
+                    type: "weather"
+                }
             } else if (type == "hikmqtt") {
                 const pp = JSON.parse(payload.toString())
                 this.devs[name] = {
@@ -106,11 +118,14 @@ class iDom extends HTMLElement {
                     Ip: pp.Ip,
                     type: "cam"
                 }
+            } else if (cmd == "HASS_STATE") {
+
+
             } else if (type == "$SYS") {
                 // console.log("Statistics", topic, payload.toString());
                 this.SYS[topic] = payload.toString();
             } else {
-                //console.log(topic, payload.toString());
+                console.log(topic, payload.toString());
             }
 
             // this.render();
@@ -147,16 +162,19 @@ class iDom extends HTMLElement {
         this.main = this.appendChild(document.createElement("div"));
         this.main.className = "idom-main";
 
-        this.main.style.paddingBottom = "60px";
+        this.main.style.paddingBottom = "80px";
         // this.main.style.display = "flex";
         // this.main.style.flexDirection = "column";
         this.main.style.gap = "1rem";
 
+        this.otherGroup = this.addGroup("Other");
+        this.otherGroup.firstChild.style.display = "none";
+        this.otherGroup.style.order = 1000;
+
+        //this.addGroup("Test");
+
         this.netstat = this.toolbar.appendChild(new iIcon("wifioff", 24, 24, () => {
-            console.log(this.grid.save().map(e => {
-                return { ...e, content: undefined };
-            }));
-            //this.appendChild(new iInfoObject(this.SYS));
+            this.appendChild(new iInfoObject(this.SYS));
         }));
 
         this.logout = this.toolbar.appendChild(new iIcon("logout", 24, 24, () => {
@@ -167,41 +185,27 @@ class iDom extends HTMLElement {
         // this.buildGrid();
     }
 
-    // resizeGrid() {
-    //     let width = document.body.clientWidth;
-    //     let layout = 'move';
-    //     if (width < 400) {
-    //         this.grid.column(1, layout).cellHeight('150px');
-    //     } else if (width < 700) {
-    //         this.grid.column(1, layout).cellHeight('100px');
-    //     } else if (width < 850) {
-    //         this.grid.column(3, layout).cellHeight('100px');
-    //     } else if (width < 950) {
-    //         this.grid.column(6, layout).cellHeight('100px');
-    //     } else if (width < 1100) {
-    //         this.grid.column(8, layout).cellHeight('100px');
-    //     } else {
-    //         this.grid.column(12, layout).cellHeight('100px');
-    //     }
-    // };
-    // buildGrid() {
-    //     this.gridNode = this.appendChild(document.createElement("div"));
-    //     this.gridNode.className = "grid-stack";
-    //     this.grid = GridStack.init({
-    //         disableDrag: false,
-    //         alwaysShowResizeHandle: true,
-    //         // disableOneColumnMode: true,
-    //         cellHeight: '20vh',
-    //         float: true
-    //         // cellHeight: "120px"
-    //     }, this.gridNode);
-    //     this.grid.load([
-    //         // { content: 'my first widget' }, // will default to location (0,0) and 1x1
-    //         // { w: 2, content: 'another longer widget!' } // will be placed next at (1,0) and 2x1
-    //     ]);
-    //     //this.resizeGrid();
-    //     // window.addEventListener('resize', () => { this.resizeGrid() });
-    // }
+    addGroup(name) {
+        if (name != "Other" && this.otherGroup.childElementCount > 1) {
+            this.otherGroup.firstChild.style.display = "block";
+        }
+        let group = this.main.querySelector("#group-" + name);
+        if (group) {
+        } else {
+            group = this.main.appendChild(document.createElement("div"));
+            const title = group.appendChild(document.createElement("div"));
+            title.className = "idom-group-title";
+            title.textContent = name;
+            //if (name == "Other") title.style.display = "none";
+            group.setAttribute("id", "group-" + name);
+            // group.textContent = name;
+            group.classList.add("idom-group");
+            group.classList.add("idom-main");
+            // group.className = "idom-group";
+        }
+
+        return group;
+    }
 
     connect() {
         if (localStorage.getItem("idom_username") && localStorage.getItem("idom_password")) {
@@ -222,14 +226,12 @@ class iDom extends HTMLElement {
     // }
 
     _addWidget(name, dev) {
-        // const tmp = document.createElement("div");
-        // tmp.className = "grid-stack-item";
-        // tmp.innerHTML = `<div class="grid-stack-item-content"></div>`;
-        this.wdevs[name] = this.main.appendChild(dev);
+        let main = this.addGroup(dev.group);
+
+        this.wdevs[name] = main.appendChild(dev);
         this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
         this.lastOrder = (localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1);
         this.wdevs[name].className = "idom-device";
-        // this.grid.addWidget(tmp, { w: 3, h: 2, id: name });
     }
 
     render(name) {
@@ -242,31 +244,14 @@ class iDom extends HTMLElement {
         } else {
             if (this.wdevs[name] == undefined) {
                 switch (this.devs[name].type) {
+                    case "weather":
+                        this._addWidget(name, new iDevWeather(name, this))
+                        break;
                     case "cam":
                         this._addWidget(name, new iDevCam(name, this))
-                        // const tmp = document.createElement("div");
-                        // tmp.className = "grid-stack-item";
-                        // tmp.innerHTML = `<div class="grid-stack-item-content"></div>`;
-
-                        // this.wdevs[name] = tmp.firstChild.appendChild(new iDevCam(name, this));
-                        // this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
-                        // this.lastOrder = (localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1);
-                        // this.wdevs[name].className = "idom-device";
-
-                        // this.grid.addWidget(tmp, { w: 1, h: 1 });
                         break;
                     default:
                         this._addWidget(name, new iDev(name, this))
-                        // const tmp = document.createElement("div");
-                        // tmp.className = "grid-stack-item";
-                        // tmp.innerHTML = `<div class="grid-stack-item-content"></div>`;
-
-                        // this.wdevs[name] = tmp.firstChild.appendChild(new iDev(name, this));//this.main.appendChild(new iDev(name, this));
-                        // this.wdevs[name].setOrder(Number(localStorage.getItem("idom_order|" + name) || this.lastOrder));
-                        // this.lastOrder = (localStorage.getItem("idom_order|" + name) && Number(localStorage.getItem("idom_order|" + name)) > this.lastOrder ? Number(localStorage.getItem("idom_order|" + name)) + 1 : this.lastOrder + 1);
-                        // this.wdevs[name].className = "idom-device";
-
-                        // this.grid.addWidget(tmp, { w: 1, h: 1 });
                         break;
                 }
             }
