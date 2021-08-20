@@ -18,7 +18,6 @@ onmessage = (m) => {
                 // client.disconnect();
                 break;
             case "connect":
-                console.log("connect");
                 connect({ servers: m.data.url, user: m.data.username, pass: m.data.password, pingInterval: 2000, maxReconnectAttempts: -1 }).then(cli => {
                     client = cli;
                     postMessage({ action: "connected" });
@@ -79,14 +78,14 @@ onmessage = (m) => {
 
                 break;
             case "publish":
-                console.log("publish", m.data.topic, m.data.payload);
+                //console.log("publish", m.data.topic, m.data.payload);
                 if (client) {
                     client.publish(m.data.topic.replaceAll("/", "."), sc.encode(m.data.payload));
                 }
                 break;
             default:
                 postMessage({ action: "login" });
-                console.log(m.data);
+                // console.log(m.data);
                 break;
         }
     }

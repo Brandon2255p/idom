@@ -99,7 +99,6 @@ class iDom extends HTMLElement {
             } else if (type == "tele" && cmd == "STATE") {
                 this.devs[name] = { ...(this.devs[name] || {}), STATE: JSON.parse(payload.toString()) };
             } else if (type == "weather") {
-                console.log("weather");
                 const pp = JSON.parse(payload.toString())
                 this.devs[name + "#" + cmd] = {
                     name: name + "#" + cmd,

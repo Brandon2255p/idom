@@ -1,4 +1,5 @@
 import { iDevBase } from "./idevbase";
+import { iIcon } from "./iicon";
 
 export class iDevCam extends iDevBase {
 
@@ -14,6 +15,35 @@ export class iDevCam extends iDevBase {
         this.imgNode = this.body.appendChild(document.createElement("img"));
         this.body.style.padding = "0px";
         this.imgNode.setAttribute("width", "100%");
+        this.imgNode.onclick = () => {
+            const full = this.body.appendChild(document.createElement("div"));
+            full.style.position = "fixed";
+            full.style.left = 0;
+            full.style.top = 0;
+            full.style.backgroundColor = "black";
+            full.style.zIndex = 2;
+            full.style.width = "100%";
+            full.style.height = "100%";
+            full.style.display = "flex";
+            full.style.alignItems = "center";
+            full.style.flexDirection = "row";
+            this.fullimgNode = full.appendChild(document.createElement("img"));
+            this.fullimgNode.src = this.imgNode.src;
+            this.fullimgNode.style.width = "100%";
+
+            const close = full.appendChild(new iIcon("x", 24, 24, () => {
+                //this.closeDialog();
+                this.fullimgNode.remove();
+                this.fullimgNode = undefined;
+                full.remove();
+
+            }));
+            close.style.width = "40px";
+            close.style.padding = "10";
+            close.style.position = "absolute";
+            close.style.right = 0;
+            close.style.top = 0;
+        }
     }
 
     buildTitle() {
@@ -34,7 +64,9 @@ export class iDevCam extends iDevBase {
         this.dev = dev;
         // console.log(dev);
         this.imgNode.src = `data:image/png;base64,${dev.image}`;
-
+        if (this.fullimgNode) {
+            this.fullimgNode.src = this.imgNode.src;
+        }
     }
 }
 
